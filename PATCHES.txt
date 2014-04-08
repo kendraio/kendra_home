@@ -1,0 +1,4 @@
+Patched modules:
+
+Migrate D2D module
+migrate_d2d-2040241-initialise_role_options.patch

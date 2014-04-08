@@ -1,0 +1,26 @@
+#pfff-admin-settings th {
+  text-transform: none;
+  text-align: center;
+}
+#pfff-admin-settings th.main-title {
+  text-transform: uppercase;
+}
+#pfff-admin-settings .form-type-item label {
+  font-weight: normal;
+}
+#pfff-admin-settings .form-type-checkbox,
+#pfff-admin-settings .edit-field .form-type-item,
+#pfff-admin-settings .edit-field div,
+#pfff-admin-settings .form-type-textfield {
+  text-align: center;
+}
+#pfff-admin-settings .edit-field div div {
+  display: inline-block;
+}
+#pfff-admin-settings .edit-field div .form-type-item {
+  margin-right: 10%;
+}
+#pfff-admin-settings .col-border {
+  border-right: solid thin #BEBFB9;
+}
+

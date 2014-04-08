@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Implements hook_form_alter().
+ */
+function kendra_home_mods_form_user_login_alter(&$form, &$form_state) {
+  $form['actions']['password_link'] = array(
+    '#markup' => l(t('Forgot your password?'), 'user/password'),
+    '#weight' => 999,
+  );
+}
+
+
+function kendra_home_mods_pathauto_alias_alter(&$alias, array &$context) {
+  //dpm($alias);
+  //dpm($context);
+
+  if ($context['module'] == 'user' &&
+    !empty($context['data']['user']->field_user_name['und'][0]['machine'])) {
+    $alias = 'users/' . $context['data']['user']->field_user_name['und'][0]['machine'];
+  }
+}
+
+
+

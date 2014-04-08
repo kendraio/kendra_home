@@ -1,0 +1,45 @@
+<?php
+/**
+ * @file
+ * Code for the Kendra Profiles feature.
+ */
+
+include_once 'kendra_profiles.features.inc';
+
+
+/**
+ * Implements hook_flush_caches().
+ */
+function kendra_profiles_flush_caches() {
+
+  $common_arguments = array(
+    'source_connection' => 'legacy',
+    'source_database' => array(
+      'driver' => 'mysql',
+      'database' => '',
+      'username' => '',
+      'password' => '',
+      'host' => 'db01',
+      'prefix' => '',
+    ),
+    'source_version' => 7,
+  );
+
+  $args = $common_arguments + array(
+    'description' => 'import legacy users',
+    'machine_name' => 'User',
+  );
+
+  Migration::registerMigration('DrupalUser7Migration', $args['machine_name'], $args);
+
+  $args = $common_arguments + array(
+    'user_migration' => 'User',
+    'class_name' => 'KendraProfileMigration',
+    'description' => 'profile migration',
+    'machine_name' => 'Profile',
+    'source_type' => 'profile',
+    'destination_type' => 'profile',
+  );
+  Migration::registerMigration($args['class_name'], $args['machine_name'], $args);
+}
+

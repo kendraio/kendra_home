@@ -1,0 +1,250 @@
+
+
+
+Kendra - An Introduction
+
+Kendra Initiative - 2001
+http://www.kendra.org.uk
+Draft Version 1 - 20010822
+http://www.kendra.org.uk/documents/kendra-an-introduction-draft-1.txt
+
+
+
+One morning in the late 1990's...
+"I want what I want, when I want and I want to pay for it!"
+
+Same morning, 5 minutes later...
+"So, how am I going to get what I want?"
+
+
+
+Kendra - An Introduction
+
+Contents:
+
+- Why should you read this?
+- What do you want?
+- What's happening now?
+- Hindrances to progress
+- Requirements and solutions
+- Where does Kendra fit into this? Or where does this fit into Kendra?
+- Common comments/questions
+- This document
+- Get involved!
+- Notes
+
+
+
+Why should you read this?
+=========================
+
+If you want to make revenue from content you will be reading about making money.
+
+If you work in the free (open source) software space or are creating standards for media or networking you will be reading about creating an open architecture for content delivery.
+
+If you're frustrated with the difficulty in getting the content that you want you will be reading about how we can build a system that makes your life easier.
+
+If you're worried about people copying your content without you getting any reward you will be reading about how we can reduce unauthorised copying.
+
+Before you stop reading and delete this email or chuck this paper in the nearest recycling bin, grant me one thought: What if this was some day in the 1960's and the title of this paper was "Internet - An Introduction" how many of the above statements, about why you should read this paper, would get a good laugh. But could it be an opportunity lost? So, read on, MacDuff!...
+
+
+What do you want?
+=================
+
+Consumers? Do you want access to all content, when you want it and willing to pay?
+
+Content owners/creators? Do you want revenue from your content, or even just exposure?
+
+Service providers? Do you want to enable the above the consumers and content owners/creators to achieve what they want and get paid for your services?
+
+Of course when answering these questions you will start with a "yes, but". At least we have some common ground to go forward. Most people like these ideas but once you get to the details of how they exactly "want it", differences seems irreconcilable. Let's see if we can get consumers, content owners/creators and service providers to all get what they want. Let's see if we can reconcile.
+
+
+What's happening now?
+=====================
+
+More and more video and audio is being webcast (both live and ondemand) and downloaded over the Internet. The growth rate seems to be ever increasing. Broadband Internet access services, such as ADSL and cable modems, are currently being rolled out in many countries.
+
+As the time/cost constraints of staying online are removed increasing numbers of Internet users will demand more content. Also, as bandwidth increases, they'll want it high-quality too.
+
+There is masses of content being viewed/heard on the Internet but not much revenue is being made from all this activity. The potential revenue is staggeringly large.
+
+Filesharing systems
+
+The needs of the consumers and the content owners/creators are not being satisfied. Hence all content owners/creators and service providers are missing out on this potential revenue. One example is the mass filesharing that is going on right now with video and audio files. There is huge potential revenue that is just not being collected because the systems are just not in place.
+
+One can attempt to kill off the filesharing systems so that consumers have to use commercial websites and applications and pay for content. But it's a real pain for consumers having to go to all these different websites with their different payment systems, to get only a subset of what they really want. So, if they can find a way around it then they will. And hence consumers are drawn to the convenience of filesharing systems that manage to give a good catalogue (a diverse and comprehensive list of titles) and a quick interface but offer no system for payment.
+
+I can't help but be reminded of that priceless line in Star Wars issued by Obi-Wan Kenobi when he is just about to get splatted by Mr. Vader, "If you strike me down, I shall become more powerful than you can possibly imagine." Removing consumer convenience from Napster has meant a surge in interest surrounding other filesharing systems (see Gnutella, Freenet, WinMX, Morpheus for starters) many of which are not convenient single entities (convenient for the lawyers, that is) that can be litigated against. Or if they are then their systems are far more resilient and carry on regardless of the creators. So, we've just moved the problem and maybe increased it, we definitely haven't solved it.
+
+If we want to take money off consumers then we need to have systems that are far more attractive than filesharing systems are now. In general the providers servicing the content industry are moving in this direction (coming together) but they can always do with a bit of a nudge and a bit of an end goal to focus on. Having a common content delivery platform that will allow consumers the same type of convenience provided by the filesharing systems.
+
+Napster was so big because of the convenience of having all content in one place. No matter what the music industry (or video/film or book or still image industries for that matter) does in terms of packaging their content they are going to loose out to the file sharing communities/systems unless they can provide/deliver content more conveniently than these non-paid-for systems. And that means giving the end user an interface (rather like a Napster type interface) where they can get all content in one place when they want it.
+
+
+Hindrances to progress
+======================
+
+Narrow vision. Or not looking at the whole value chain
+
+Organisations (technical or media focused) seem to be trying to come up with solutions to content delivery within there own areas. But this is a cross industry problem and can more easily be solved by groups coming together and looking at the whole content value chain:
+
+content owners/creators <-> service providers <-> consumers
+
+All we are doing is moving blobs of digital stuff around the Internet so what's inside the blob sometimes doesn't matter in terms of getting it to the consumer. So, solutions can be more generalised.
+
+Don't tell people what to do but help people do what they want
+
+No one is the same and we must allow for these differences. No one likes to be pigeon holed or backed into a corner. People react against it. We learnt this as kids. Remember the story of the guy wearing a thick overcoat and the Sun and Wind taking bets on who can get his coat off quickest?
+
+In the past, technology companies have been all too quick to tell real world companies how to change their business models to suit the online world. But one industry can't dictate business models to another industry. It just gets their backs up. None of us like to be told how to do our own job. Each sector has to find its own business practices. 
+
+One example is the technology industry telling the music industry that from hence forth they have to sell all their content on a subscription basis. When the music industry has done quite well for 100s of years doing what they do, selling music piecemeal, thank you very much.
+
+Another example is the music industry telling consumers that they have to buy their content piecemeal from many different sources, be they physical (CDs) or electronic (MP3s from the Internet), giving the consumer an awful experience trying to find the content they want and then having to use many different payment systems to make purchases. When there are Internet systems that provide far more convenience, faster searching and quicker retrieval, thank you very much.
+
+Inconvenience does not sell
+
+By fragmenting the interface to content in this way the music industry left a huge gap in the market which was unfortunately filled by systems that have not allowed payment for content. Also, by confusing the consumer with this fragmentation the consumer is naturally drawn to the most convenient interface currently offered filesharing systems.
+
+Payment methods
+
+Users will pay for convenience. But they'll pay in the way they want, be that subscription, pay-per-play, pay-to-own, pre-pay, pay-nothing, pay-what-you-think-it's-worth (donations), pay-some-other-way or a combination of all those options. For example perhaps we have a user that pays a base subscription and then does a pay-to-own on stuff that's a bit special. Whatever. It really doesn't matter. What I mean is it really doesn't matter to us. It's not our concern how users pay. Let's just enable it to happen.
+
+Users will have a set of ideals about the way they want to pay. Content owners will have a set of ideals about the way they want to be paid. Both will make exceptions based in specific circumstances. A user may pay much more for a song they heard when they were a kid but now can't find anywhere. As time goes on content owners will make adjustments to their ideal payment methods to increase profit or audience. As will the users change their habits. And so they will work it out and it's not for us to get involved just to make sure they are able to do what they want.
+
+Too much Internet congestion with streamed content
+
+Streaming content over many router/host can introduce latencies in a streamed signal. Also, the further you are away (network wise) from the streaming source the more likely there'll be some kind of network traffic disturbance along the way. This may cause the streamed content to reduce in quality or even stall and wait for rebuffering. One way to tackle this problem is to move the content closer to the end user thereby reducing risks of latency and network congestion. So, now we have the rush of the content delivery network companies (CDNs) which do just that.
+
+So, we have many different CDN players all with their own network of servers hosting content at the "edges" of the Internet. The number of servers that each CDN has can range from 10s to 1000s. Even if you have 1000s of servers there's still no assurance that the CDN will be close enough to the Internet user to avoid problems with the quality of service. In order to provide much higher quality of service we need to allow all these CDNs and ISPs to exchange content so that the reach of each particular piece of content is far greater.
+
+Incompatible payment systems
+
+Consumers want convenience. That also applies to the ways that we make purchases. What we don't want is to have to register with 100s of different payment systems at all the 100s of different websites that we go to in order to make purchases. We can get by with one cheque book and one credit card so why not one payment system? That doesn't mean there is only one payment system for all. I may want a green one and you may want a blue one. However, what it does mean is that all the payment system can talk to each other, can reconcile transactions, rather like our current real world banking system.
+
+
+Requirements and solutions
+==========================
+
+Start looking at the bigger picture of the whole content value chain.
+
+Look at where we want to get to and how we're going to get there.
+
+Continue to build on the idea of a shared content space, that the Internet provides us, but with more intelligence for caching locally and making payments.
+
+Build test beds for network models and interface models.
+
+
+Where does Kendra fit into this?
+================================
+Or where does this fit into Kendra?
+===================================
+
+Kendra is an open architecture, format independent, research project developing a transport system for content distribution over the Internet. An Internet distribution and delivery system for the entertainment and content industries.
+
+Kendra is constructing a framework that will allow all companies and individuals in the content distribution industry, from ISPs and production houses to independent artists, to be rewarded for their efforts. Kendra is a not for profit organisation creating a forum for those that wish to define and realise content delivery within the future of convergent media.
+
+Essentially, Kendra is a layer of intelligence on the Internet/networks that enables more consumers, content owners/creators and service providers to do more of what they want to do with content.
+
+Essentially, Kendra Initiative is a group of people that are using their Initiative to bring Kendra to reality.
+
+Marketing
+
+By calling this very ambitious system "Kendra" we can market the concept far easier than if it was a description. Works in much the same way that has benefited the "Internet".
+
+The people in Kendra need to be able to look both at the big picture and at the same time interface with groups looking at smaller areas in more detail.
+
+Tasks
+
+Look at interface requirements first and then build/interface with underlying technologies.
+
+Flag waving. Provide a stick in the sand. A direction for industry to head for.
+
+Look at the total requirement for the content value chain. The big picture. All the standards definition people need access to a bigger picture to see how they fit in.
+
+Make constructive comments and suggestions to standards bodies to help improve their protocols and make them more applicable/relevant to end users requirements.
+
+Improve the viewing experience (reducing net congestion) by hosting the content as close to the viewer as possible.
+
+Investigate intelligent, distributed, caching mechanisms to improve accessibility, performance and reliability while minimising storage space and network utilisation.
+
+Investigate tools for content copyright management and accounting systems.
+
+Bring together specialists in industry and academic to collectively build and investigate a model for future delivery of broadband content over the Internet.
+
+Kendra Network Trial (kNT)
+
+Kendra's aims include bringing about one logical global cross vendor caching network because it's only from really getting the content as close to the consumer as possible that we can increase its quality and hence its value. Also, we need all the various payment/wallet systems out there to come up with a "banking" system that allows them to resolve financial transactions between each other. This would then mean that consumer wouldn't have to sign up to 100 different payment systems and could just use one. Rather like most of use only have one bank account. What convenience!
+
+The aim is to provide a practical test bed for these and other questions to be answered. And to provide useful research into video-on-demand and live TV over the Internet. Gain demographics for usage patterns. Provide a report at the end of a one year period. And allow participating companies access to logs and statistics through out the duration. Encourage multicast enabled networks.
+
+
+Common comments/questions
+=========================
+
+Content wants to be free...
+
+A: Eh? Content doesn't want anything. Content can't think, last time I looked. It's people that want things. If people want content to be free then let them have available free content. If people want to provide content at no cost then let them give it away. If people want to pay for content then let them buy it. Finally, you've guessed it, if people want to sell content then let them earn a reward.
+
+But, but people don't want to buy anything anymore, I tell you! Look at all the file sharing going on! We've got to encrypt all content and if they try to get around it we'll blow up their hi-fis!
+
+A: OK, OK... Take a deep breath... That's better... Firstly, look at all the nice people in the real world buying CD's and DVD's, etc and see that people are really happy to pay for all this stuff. You haven't even bothered to provide those filesharing users with anything that even comes close to the convenience of a filesharing system. Yet you are branding all those filesharing users as thieves before you've given them the option of using a system where they can pay for the content. Is that fair?
+
+Let's just leave it to market forces to sort this all out...
+
+A: Eh? Please define market forces? Is it not everybody on the planet? kI participants are a subset of the world's population (no aliens, last time I looked). So, totally agree, let's leave it up to market forces and that is us!
+
+We tried all this before and it didn't work...
+
+A: Did you really try "all this"? Did you really work at it over years or were you expecting a quick solution? Did you really look at the whole content value chain or only a small part of it?
+
+This sounds like the end of all websites...
+
+A: Not an end to websites at all. But now, as these things go, there's no going back. Napster, and the rest, have shown us an interface that is better than what we had. But you should be able to click on a piece of content in a webpage (just like you would in a local filesharing application) and be able to view/listen and pay for it.
+
+This is going to take all the fun out of finding content and make life too easy...
+Give me inconvenience any day!
+
+A: Hmm... Well you don't have to use it if you don't want to. So, if you don't like the idea of Kendra then the Internet must really get your goat.
+
+What can I do to help?...
+
+A: Go to the kI website and get on to the email discussion lists and participate in kNT and ask a more specific question!
+
+
+This document
+=============
+
+This document is meant to be fun and engaging. Though the tone is light-hearted, it is not meant to trivialise the issue and as you'll see from discussions on the kI website kParticipants are very serious about sorting this out.
+
+This introduction to Kendra must be accessible to a cross spectrum readership. I hope this serves as a point of reference for discussion.
+
+This is not a final version. It will get updated from comments, suggestions and discussions and as ideas progress. So, it should be in draft form until the Kendra system is with us and working. Then we can all go home and slouch in front of our HDTVs and watch anything we want and pay for it!
+
+
+Get involved!
+=============
+
+Go and have a look at the website: http://www.kendra.org.uk . If you have streaming servers then join the Kendra Network Trial (kNT) and host some test content.
+
+If you have any comments or questions about this document then please join the Kendra Framework email discussion list (kFW) and post there. Use:
+Email: <k-framework@lists.kendra.org.uk>
+Subject: "Re: Kendra - An Introduction"
+
+Instructions on joining discussion list on the Kendra website. Ironically, to participate in Kendra Initiative and the email discussion lists involve a small inconvenience: exposure. It is important that what happens within Kendra is open and accessible. So, everyone taking part has to show they are taking part. The list of kParticipants looks impressive further goes to market the concept of what we're all trying to achieve.
+
+
+Notes
+=====
+
+For the purposes of this document certain assumptions have been made about the meaning of words:
+
+content - refers to all digital content or anything that can be digitised: films, video, music, text, still images, etc
+
+
+
+Kendra - An Introduction
+Author: Daniel Harris
+

@@ -1,0 +1,12 @@
+name = Relation Formatter Entity
+description = Field formatter that renders the endpoints as full entities
+core = 7.x
+package = Relation
+dependencies[] = relation_endpoint
+
+; Information added by  packaging script on 2013-11-18
+version = "7.x-1.3"
+core = "7.x"
+project = "relation_formatter_entity"
+datestamp = "1384783107"
+
