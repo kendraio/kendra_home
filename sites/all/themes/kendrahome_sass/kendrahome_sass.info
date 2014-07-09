@@ -1,0 +1,65 @@
+name = Kendra Home
+description = A Bootstrap SASS Sub-theme.
+core = 7.x
+base theme = bootstrap
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Regions
+;;;;;;;;;;;;;;;;;;;;;
+
+regions[navigation]     = 'Navigation'
+regions[header]         = 'Top Bar'
+regions[highlighted]    = 'Highlighted'
+regions[help]           = 'Help'
+regions[content]        = 'Content'
+regions[sidebar_first]  = 'Primary'
+regions[sidebar_second] = 'Secondary'
+regions[footer]         = 'Footer'
+regions[page_top]       = 'Page top'
+regions[page_bottom]    = 'Page bottom'
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Stylesheets
+;;;;;;;;;;;;;;;;;;;;;
+
+stylesheets[all][] = css/style.css
+
+
+; For information on choosing the desired method, please read the Drupal
+; Bootstrap sub-theme "how-to" documentation:
+; https://drupal.org/node/1978010
+
+; ;----------------------------------
+; ; METHOD 1: Bootstrap Source Files
+; ;----------------------------------
+; 
+; ;;;;;;;;;;;;;;;;;;;;;
+; ;; Scripts
+; ;;;;;;;;;;;;;;;;;;;;;
+; 
+scripts[] = 'js/bootstrap/affix.js'
+scripts[] = 'js/bootstrap/alert.js'
+scripts[] = 'js/bootstrap/button.js'
+scripts[] = 'js/bootstrap/carousel.js'
+scripts[] = 'js/bootstrap/collapse.js'
+scripts[] = 'js/bootstrap/dropdown.js'
+scripts[] = 'js/bootstrap/modal.js'
+scripts[] = 'js/bootstrap/tooltip.js'
+scripts[] = 'js/bootstrap/popover.js'
+scripts[] = 'js/bootstrap/scrollspy.js'
+scripts[] = 'js/bootstrap/tab.js'
+scripts[] = 'js/bootstrap/transition.js'
+;
+; ; Disable BootstrapCDN if using Bootstrap source files in your sub-theme.
+; settings[bootstrap_cdn] = ''
+
+
+; ;-------------------------
+; ; METHOD 2: Bootstrap CDN
+; ;-------------------------
+;
+; Method 2 uses BootstrapCDN, the only thing you might need to provide here
+; is overrides to Bootstrap theme settings. Copy them here from the base theme
+; to override.
