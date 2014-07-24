@@ -118,3 +118,11 @@ $bs-height-xs:   (floor($font-size-small * 1.2) + $padding-small-vertical + 1);
 .btn-vimeo         { @include btn-social(#1ab7ea); }
 .btn-vk            { @include btn-social(#587ea3); }
 .btn-yahoo         { @include btn-social(#720e9e); }
+
+
+div.region3 {
+    background: #efefef;
+    padding: 2em 2em 1em 2em;
+    margin-top: 4em;
+    font-size: 80%;
+}
