@@ -63,3 +63,9 @@ scripts[] = 'js/bootstrap/transition.js'
 ; Method 2 uses BootstrapCDN, the only thing you might need to provide here
 ; is overrides to Bootstrap theme settings. Copy them here from the base theme
 ; to override.
+
+; ;;;;;;;;;;;;;;;;;;;;;
+; ;; Panels Layouts
+; ;;;;;;;;;;;;;;;;;;;;;
+; 
+plugins[panels][layouts] = plugins/layouts
