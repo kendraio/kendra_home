@@ -69,7 +69,7 @@ function relation_entity_property_info() {
       'type' => 'token',
       'description' => t('The type of the relation.'),
       'setter callback' => 'entity_property_verbatim_set',
-      'setter permission' => 'administer nodes',
+      'setter permission' => 'edit relations',
       'options list' => 'relation_rules_get_type_options',
       'required' => TRUE,
       'schema field' => 'relation_type',
@@ -80,7 +80,7 @@ function relation_entity_property_info() {
       'description' => t('The endpoints of the relation.'),
       'setter callback' => 'relation_rules_set_endpoints',
       'getter callback' => 'relation_rules_get_endpoints',
-      'setter permission' => 'administer nodes',
+      'setter permission' => 'edit relations',
       'required' => TRUE,
     ),
   );
@@ -563,11 +563,8 @@ function relation_query_enforce_distinct_endpoints_alter(QueryAlterableInterface
   // Add r_index conditions between all endpoints
   for ($i = 0; $i < $arity; $i++) {
     for ($k = $i + 1; $k < $arity; $k++) {
-      // @see http://drupal.org/node/1859084
-      // For now each endpoint condition adds 2 joins to the query. Add
-      // conditions between even numbers.
-      $column_left = 'field_data_endpoints' . $i*2 . '.endpoints_r_index';
-      $column_right = 'field_data_endpoints' . $k*2 . '.endpoints_r_index';
+      $column_left = 'field_data_endpoints_delta_' . $i . '.endpoints_r_index';
+      $column_right = 'field_data_endpoints_delta_' . $k . '.endpoints_r_index';
       $query->where("$column_left != $column_right");
     }
   }
