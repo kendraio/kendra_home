@@ -23,6 +23,14 @@ One common use is to not give users permission to 'Create and edit URL aliases' 
 them access to a Safeword field which uses the node title as it's source. So that users can only
 edit a limited part of the path, keeping safe the other parts that your site features may rely on.
 
+Transliteration
+If you install the Transliteration module an option will apear on
+each field to automatically transliterate the machine-name,
+converting non-Roman characters into Roman characters without
+accents.
+
+https://drupal.org/project/transliteration
+
 
 ********************************************************************
 INSTALLATION:
