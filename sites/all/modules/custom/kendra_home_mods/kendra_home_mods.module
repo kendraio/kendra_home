@@ -12,8 +12,6 @@ function kendra_home_mods_form_user_login_alter(&$form, &$form_state) {
 
 
 
-
-
 /**
  * Implements hook_field_widget_form_alter().
  */
@@ -27,7 +25,32 @@ function kendra_home_mods_field_widget_form_alter(&$element, &$form_state, $cont
         $element['machine']['#disabled']  = TRUE;
         // Hide the label.
         $element['machine']['#machine_name']['label'] ='';
+        // Add validtion.
+        $element['#element_validate'] = array('kendra_home_mods_user_name_widget_form_validate');
       }
+    }
+  }
+}
+
+/**
+ * Element validation function for the full name field.
+ */
+function kendra_home_mods_user_name_widget_form_validate(&$element, &$form_state) {
+  // Get the trimmed name.
+  $name = drupal_array_get_nested_value($form_state['values'], $element['#parents']);
+  $name = trim($name['human']);
+  // If name is empty.
+  if (empty($name)) {
+    // No need for action as will be handled by the requiered field.
+    return;
+  }
+  else {
+    // count the number of parts the name has.
+    $parts = explode(' ', $name);
+    // If only one.
+    if (count($parts) == 1) {
+      // create a form error.
+      form_error($element['human'], t('You need to provide a full name: first name + last name and optionally a middle name.'));
     }
   }
 }

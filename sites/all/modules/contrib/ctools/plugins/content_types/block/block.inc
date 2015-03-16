@@ -40,6 +40,11 @@ function ctools_block_content_type_content_type($subtype_id) {
  * of the form "$module . '_ctools_block_info'".
  */
 function ctools_block_content_type_content_types() {
+  $types = &drupal_static(__FUNCTION__);
+  if (isset($types)) {
+    return $types;
+  }
+
   $types = array();
   foreach (module_implements('block_info') as $module) {
     $module_blocks = module_invoke($module, 'block_info');
@@ -143,27 +148,32 @@ function ctools_block_content_type_render($subtype, $conf) {
   $block = module_invoke($module, 'block_view', $delta);
 
   if (!empty($info)) {
+    // Valid PHP function names cannot contain hyphens.
+    $block_delta = str_replace('-', '_', $delta);
+
     // Allow modules to modify the block before it is viewed, via either
     // hook_block_view_alter() or hook_block_view_MODULE_DELTA_alter().
-    drupal_alter(array('block_view', "block_view_{$module}_{$delta}"), $block, $info);
+    drupal_alter(array('block_view', "block_view_{$module}_{$block_delta}"), $block, $info);
   }
-  $block = (object) $block;
 
   if (empty($block)) {
     return;
   }
 
+  $block = (object) $block;
   $block->module = $module;
   $block->delta = $delta;
 
-  if ($module == 'block' && !empty($info) && isset($info->title)) {
-    $block->title = $info->title;
-  }
-  else if (isset($block->subject)) {
-    $block->title = $block->subject;
-  }
-  else {
-    $block->title = NULL;
+  if (!isset($block->title)) {
+    if ($module == 'block' && !empty($info) && isset($info->title)) {
+      $block->title = $info->title;
+    }
+    else if (isset($block->subject)) {
+      $block->title = $block->subject;
+    }
+    else {
+      $block->title = NULL;
+    }
   }
 
   if (module_exists('block') && user_access('administer blocks')) {
