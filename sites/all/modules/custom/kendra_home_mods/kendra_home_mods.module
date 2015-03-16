@@ -45,3 +45,30 @@ function kendra_home_mods_pathauto_alias_alter(&$alias, array &$context) {
 
 
 
+
+/**
+ * Implementation of hook_field_user_import_supported_alter().
+ */
+function kendra_home_mods_field_user_import_supported_alter(&$supported) {
+ $supported['safeword'] = array(
+   //'validate' => 'safeword_field_validate',
+   'validate' => 'field_user_import_default_field_validator',
+   'save' => 'kendra_home_mods_user_import_field_safeword_processor',
+ );
+}
+
+
+/**
+ * Set the safeword human.
+ */
+function kendra_home_mods_user_import_field_safeword_processor($user_fields, $field_name, $values) {
+  $field = $user_fields->$field_name;
+
+  for ($i = 0; $i < count($values); $i++) {
+    if (!empty($values[$i])) {
+      $field[LANGUAGE_NONE][$i]['human'] = $values[$i];
+    }
+  }
+
+  return $field;
+}
