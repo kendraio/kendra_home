@@ -16,17 +16,20 @@ function kendra_home_mods_form_user_login_alter(&$form, &$form_state) {
  * Implements hook_field_widget_form_alter().
  */
 function kendra_home_mods_field_widget_form_alter(&$element, &$form_state, $context) {
-  // Check we are on the field_user_name.
-  if ($element['#field_name'] == 'field_user_name') {
-    // Check we are on the registration form
-    if ($form_state['build_info']['form_id'] == 'user_register_form') {
-      if (isset($element['machine'])) {
-        // Hide the machine name.
-        $element['machine']['#disabled']  = TRUE;
-        // Hide the label.
-        $element['machine']['#machine_name']['label'] ='';
-        // Add validtion.
-        $element['#element_validate'] = array('kendra_home_mods_user_name_widget_form_validate');
+  // Alter the widget from safeword
+  if ($context['field']['type'] == 'safeword') {
+    // Check we are on the field_user_name.
+    if ($element['#field_name'] == 'field_user_name') {
+      // Check we are on the registration form
+      if ($form_state['build_info']['form_id'] == 'user_register_form') {
+        if (isset($element['machine'])) {
+          // Hide the machine name.
+          $element['machine']['#disabled']  = TRUE;
+          // Hide the label.
+          $element['machine']['#machine_name']['label'] ='';
+          // Add validtion.
+          $element['#element_validate'] = array('kendra_home_mods_user_name_widget_form_validate');
+        }
       }
     }
   }
