@@ -43,10 +43,11 @@ function safeword_migrate_api() {
 class MigrateSafewordFieldHandler extends MigrateFieldHandler {
 
   public function __construct() {
-    $this->registerTypes(array('safeword'));
+    $this->registerTypes(array('safeword_title'));
   }
 
   public function prepare($entity, array $field_info, array $instance, array $values) {
+    // Change the format of the arguments for getFieldLanguage().
     $arguments = array();
     if (isset($values['arguments'])) {
       $arguments = array_filter($values['arguments']);
@@ -57,8 +58,8 @@ class MigrateSafewordFieldHandler extends MigrateFieldHandler {
     // Setup the standard Field API array for saving.
     foreach (array_values($values) as $delta => $value) {
       $item = array();
-      if (isset($arguments['machine'][$delta])) {
-        $item['machine'] = $arguments['machine'][$delta];
+      if (isset($arguments['machine'])) {
+        $item['machine'] = $arguments['machine'];
       }
       $item['human'] = $value;
       $return[$language][$delta] = $item;
