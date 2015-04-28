@@ -120,9 +120,14 @@ $bs-height-xs:   (floor($font-size-small * 1.2) + $padding-small-vertical + 1);
 .btn-yahoo         { @include btn-social(#720e9e); }
 
 
-div.region3 {
+/*div.region3 {
     background: #efefef;
-    padding: 2em 2em 1em 2em;
-    margin-top: 4em;
-    font-size: 80%;
+    padding: 0em 1em 1em;
+    margin: 4em 1em;
+}*/
+
+footer.region-footer {
+    background: $gray-bground;
+    padding: 0em 1em 1em;
+ 
 }
