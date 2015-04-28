@@ -84,20 +84,17 @@
   <?php print render($page['header']); ?>
 
   <div class="outer-row">
-
-    <?php /* region--sidebar.tpl.php */ ?>
-    <?php if ($page['sidebar_first']): ?>
-      <?php print render($page['sidebar_first']); ?>
-    <?php endif; ?>
+    <div class="container">
+      <?php print render($page['highlighted']); ?>
+      <?php print $breadcrumb; ?>
+      <?php print $messages; ?>
+      <?php print render($tabs); ?>
+      <?php print render($page['help']); ?>
+      <?php print render($page['action_links']); ?>
 
     <?php /* region--content.tpl.php */ ?>
     <?php print render($page['content']); ?>
-
-    <?php /* region--sidebar.tpl.php */ ?>
-    <?php if ($page['sidebar_second']): ?>
-      <?php print render($page['sidebar_second']); ?>
-    <?php endif; ?>
-
+   </div>
   </div>
 </div>
 <?php /* region--footer.tpl.php */ ?>

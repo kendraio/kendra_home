@@ -8659,10 +8659,13 @@ button.close {
   background-color: white;
 }
 
-/* line 123, ../sass/style.scss */
-div.region3 {
-  background: #efefef;
-  padding: 2em 2em 1em 2em;
-  margin-top: 4em;
-  font-size: 80%;
+/*div.region3 {
+    background: #efefef;
+    padding: 0em 1em 1em;
+    margin: 4em 1em;
+}*/
+/* line 129, ../sass/style.scss */
+footer.region-footer {
+  background: #f8f8f8;
+  padding: 0em 1em 1em;
 }

@@ -12,13 +12,13 @@
  */
 ?>
 <div class="<?php print $classes ?>" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
-  <div class="row-fluid container region1">
+  <div class="row-fluid container-fluid region1">
    <?php print $content['region-1']; ?>
   </div>
-  <div class="row-fluid container region2">
+  <div class="row-fluid container-fluid region2">
     <?php print $content['region-2']; ?>
   </div>
-  <div class="row-fluid container region3" role="footer">
+  <div class="row-fluid container-fluid region3" role="footer">
     <?php print $content['region-3']; ?>
   </div>
 </div>
