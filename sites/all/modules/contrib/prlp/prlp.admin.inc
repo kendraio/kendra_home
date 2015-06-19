@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * @file
+ * Password Reset Landing Page admin pages.
+ */
+
 /**
  * Form builder function for PRLP config settings.
  */
@@ -28,8 +34,22 @@ function prlp_admin_settings($form) {
   $form['prlp']['prlp_hidden_account_fields'] = array(
     '#type' => 'textarea',
     '#title' => t('Account Fields Hidden'),
-    '#description' => t('List of form sub-keys under \'account\' key (e.g. \'mail\', \'name\' etc.) that should be hidden on password reset landing page. Put one per line.'),
+    '#description' => t("List of form sub-keys under 'account' key (e.g. 'mail', 'name' etc.) that should be hidden on password reset landing page. Put one per line."),
     '#default_value' => variable_get('prlp_hidden_account_fields', PRLP_HIDDEN_ACCOUNT_FIELDS_DEFAULT),
+  );
+  // Confirmation Message For New Users.
+  $form['prlp']['prlp_confirmation_message_new_users'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Confirmation Message For New Users'),
+    '#description' => t('Confirmation message that will be shown to new users after they set their password.'),
+    '#default_value' => variable_get('prlp_confirmation_message_new_users', t('Thank you for setting your password, the registration process has completed.')),
+  );
+  // Confirmation Message For Existing Users.
+  $form['prlp']['prlp_confirmation_message_existing_users'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Confirmation Message For Existing Users'),
+    '#description' => t('Confirmation message that will be shown to existing users after they changed their password.'),
+    '#default_value' => variable_get('prlp_confirmation_message_existing_users', t('Your new password has been saved.')),
   );
   $form = system_settings_form($form);
   $form['actions']['reset'] = array(
@@ -42,12 +62,14 @@ function prlp_admin_settings($form) {
 }
 
 /**
- * Submit handler for 'Reset to defaults' button. Deletes all configuration (variables) used by this module.
+ * Submit handler for 'Reset to defaults' button.
+ *
+ * Deletes all configuration variables for this module and gives a nice message.
  */
 function prlp_admin_settings_reset(&$form, &$form_state) {
   prlp_delete_config_variables();
   $form_state['rebuild'] = FALSE;
-  drupal_set_message(t('PRLP configuration settings have been reset to hard-coded defaults.'));
+  drupal_set_message(t('PRLP configuration has been reset to the defaults.'));
 }
 
 /**
@@ -60,7 +82,7 @@ function prlp_delete_config_variables() {
     'prlp_hidden_fields',
     'prlp_hidden_account_fields',
   );
-  foreach($variable_names as $variable_name) {
+  foreach ($variable_names as $variable_name) {
     variable_del($variable_name);
   }
 }
