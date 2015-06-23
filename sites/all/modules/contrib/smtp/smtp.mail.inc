@@ -56,8 +56,10 @@ class SmtpMailSystem implements MailSystemInterface {
     // Create a new PHPMailer object - autoloaded from registry.
     $mailer = new PHPMailer();
 
+    $logging = variable_get('smtp_debugging', SMTP_LOGGING_ERRORS);
+
     // Turn on debugging, if requested.
-    if (variable_get('smtp_debugging', 0) == 1) {
+    if ($logging == SMTP_LOGGING_ALL) {
       $mailer->SMTPDebug = TRUE;
     }
 
@@ -93,7 +95,9 @@ class SmtpMailSystem implements MailSystemInterface {
         // If smtp_from config option is blank, use site_email.
         if (($from = variable_get('site_mail', '')) == '') {
           drupal_set_message(t('There is no submitted from address.'), 'error');
-          watchdog('smtp', 'There is no submitted from address.', array(), WATCHDOG_ERROR);
+          if ($logging) {
+            watchdog('smtp', 'There is no submitted from address.', array(), WATCHDOG_ERROR);
+          }
           return FALSE;
         }
       }
@@ -106,7 +110,9 @@ class SmtpMailSystem implements MailSystemInterface {
     }
     elseif (!valid_email_address($from)) {
       drupal_set_message(t('The submitted from address (@from) is not valid.', array('@from' => $from)), 'error');
-      watchdog('smtp', 'The submitted from address (@from) is not valid.', array('@from' => $from), WATCHDOG_ERROR);
+      if ($logging) {
+        watchdog('smtp', 'The submitted from address (@from) is not valid.', array('@from' => $from), WATCHDOG_ERROR);
+      }
       return FALSE;
     }
 
@@ -201,8 +207,9 @@ class SmtpMailSystem implements MailSystemInterface {
             default:
               // Everything else is unsuppored by PHPMailer.
               drupal_set_message(t('The %header of your message is not supported by PHPMailer and will be sent as text/plain instead.', array('%header' => "Content-Type: $value")), 'error');
-              watchdog('smtp', 'The %header of your message is not supported by PHPMailer and will be sent as text/plain instead.', array('%header' => "Content-Type: $value"), WATCHDOG_ERROR);
-
+              if ($logging) {
+                watchdog('smtp', 'The %header of your message is not supported by PHPMailer and will be sent as text/plain instead.', array('%header' => "Content-Type: $value"), WATCHDOG_ERROR);
+              }
               // Force the Content-Type to be text/plain.
               $mailer->IsHTML(FALSE);
               $content_type = 'text/plain';
@@ -230,7 +237,14 @@ class SmtpMailSystem implements MailSystemInterface {
           break;
 
         case 'return-path':
-          $mailer->Sender = $value;
+          if (strpos($value, '<') !== FALSE) {
+            $returnPathParts = explode('<', $value);
+            $returnPathAddr = rtrim($returnPathParts[1], '>');
+            $mailer->Sender = $returnPathAddr;
+          }
+          else {
+            $mailer->Sender = $value;
+          }
           break;
 
         case 'mime-version':
@@ -272,6 +286,10 @@ class SmtpMailSystem implements MailSystemInterface {
             }
             $mailer->AddBCC($bccaddr, $bccname);
           }
+          break;
+
+        case 'message-id':
+          $mailer->MessageID = $value;
           break;
 
         default:
@@ -366,7 +384,7 @@ class SmtpMailSystem implements MailSystemInterface {
               // If plain/html within the body part, add it to $mailer->Body.
               elseif (strpos($body_part2, 'text/html')) {
                 // Get the encoding.
-                $body_part2_encoding = $this->_get_substring($body_part2, 'Content-Transfer-Encoding', ' ', "\n");
+                $body_part2_encoding = $this->_get_substring($body_part2, 'Content-Transfer-Encoding', ':', "\n");
                 // Clean up the text.
                 $body_part2 = trim($this->_remove_headers(trim($body_part2)));
                 // Check whether the encoding is base64, and if so, decode it.
@@ -503,9 +521,12 @@ class SmtpMailSystem implements MailSystemInterface {
       'to' => $to,
       'from' => $from,
     );
+
     if (variable_get('smtp_queue', FALSE)) {
-      watchdog('smtp', 'Queue sending mail to: @to', array('@to' => $to));
       smtp_send_queue($mailerArr);
+      if ($logging == SMTP_LOGGING_ALL) {
+        watchdog('smtp', 'Queue sending mail to: @to', array('@to' => $to));
+      }
     }
     else {
       return _smtp_mailer_send($mailerArr);
