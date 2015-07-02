@@ -206,3 +206,113 @@ function _cleanString($text, $url_safe = FALSE) {
 
     return ($text);
 }
+
+/**
+ * Implements hook_menu().
+ */
+function kendra_home_mods_menu() {
+
+  $items['admin/mailchimp/subscribe'] = array(
+    'title' => 'Subscribe to mailchimp',
+    'description' => 'Subscribe the user_id to mailchimp',
+    'page callback' => 'kendra_home_mods_mailchimp_subscribe_url',
+    'access arguments' => array('administer users'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/mailchimp/unsubscribe'] = array(
+    'title' => 'Unsubscribe to mailchimp',
+    'description' => 'Unsubscribe the user_id to mailchimp',
+    'page callback' => 'kendra_home_mods_mailchimp_unsubscribe_url',
+    'access arguments' => array('administer users'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function kendra_home_mods_mailchimp_subscribe_url() {
+  $list_id = arg(3);
+  $uid = arg(4);
+  if (!isset($list_id)) {
+    print 'please provide a user id';
+  }
+  else {
+    print 'list_id = ' . $list_id;
+    print ', Subsribe uid = ' . $uid;
+    kendra_home_mods_mailchimp_subscribe($list_id, $uid);
+    //print $mail;
+    //print_r($name);
+    //print_r($target_user);
+  }
+}
+
+function kendra_home_mods_mailchimp_unsubscribe_url() {
+  $list_id = arg(3);
+  $uid = arg(4);
+  if (!isset($list_id)) {
+    print 'please provide a user id';
+  }
+  else {
+    print 'list_id = ' . $list_id;
+    print ', Unsubsribe uid = ' . $uid;
+    kendra_home_mods_mailchimp_unsubscribe($list_id, $uid);
+  }
+}
+
+/**
+ * Subscribe a user to mailchimp.
+ *
+ * The $list_id is available from the mailchimp:
+ *  list->Settings->List name and Campaign defaults
+ */
+function kendra_home_mods_mailchimp_subscribe($list_id, $uid) {
+  $target_user = user_load($uid);
+  // Using the field.
+  $target_user->field_mc_subscribe['und'][0] = array('subscribe' => 1);
+  user_save($target_user);
+  return;
+
+  // Old way using the function
+  $email = $target_user_ep->mail->value();
+  $name = $target_user_ep->field_user_name->value();
+  $name = $name['human'];
+
+  $merge_vars = array();
+  $merge_vars['advanced'] = 0;
+  $merge_vars['LNAME'] = '';
+  $merge_vars['FNAME'] = $name;
+  $merge_vars['EMAIL'] = $email;
+
+  // Settings.
+  $double_optin = FALSE;
+  $confirm = FALSE;
+  $format = 'html';
+  $update_existing = TRUE;
+  $replace_interests = TRUE;
+
+  $mailchimp_result =  mailchimp_subscribe($list_id, $email, $merge_vars, $double_optin, $confirm, $format = 'html', $update_existing, $replace_interests);
+  //print_r($mailchimp_result);
+  //drupal_set_message(print_r($mailchimp_result, TRUE));
+}
+
+/**
+ * Unsubscribe a user to mailchimp.
+ *
+ * The $list_id is available from the mailchimp:
+ *  list->Settings->List name and Campaign defaults
+ */
+function kendra_home_mods_mailchimp_unsubscribe($list_id, $uid) {
+  $target_user = user_load($uid);
+  // Using the field.
+  $target_user->field_mc_subscribe['und'][0] = array('subscribe' => 0);
+  user_save($target_user);
+  return;
+
+  // Old way using the function
+  $target_user_ep = entity_metadata_wrapper('user', $target_user);
+  $email = $target_user_ep->mail->value();
+
+  $mailchimp_result =  mailchimp_unsubscribe($list_id, $email, TRUE, FALSE, FALSE);
+  print_r($mailchimp_result);
+  //drupal_set_message(print_r($mailchimp_result, TRUE));
+}
