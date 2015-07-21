@@ -151,7 +151,20 @@ function views_bulk_operations_modify_action_form($context, &$form_state) {
         '#title' => $property['label'],
       );
 
-      $determined_type = ($property['type'] == 'boolean') ? 'checkbox' : 'textfield';
+      switch ($property['type']) {
+        case 'boolean':
+          $determined_type = 'checkbox';
+          break;
+        case 'list':
+          $determined_type = 'checkboxes';
+          break;
+        case 'integer':
+          $determined_type = 'select';
+          break;
+        default:
+          $determined_type = 'textfield';
+      }
+
       $form['properties'][$key] = array(
         '#type' => $determined_type,
         '#title' => $property['label'],
