@@ -1487,7 +1487,7 @@ function menu_tree_collect_node_links(&$tree, &$node_links) {
  *   menu_tree_collect_node_links().
  */
 function menu_tree_check_access(&$tree, $node_links = array()) {
-  if ($node_links) {
+  if ($node_links && (user_access('access content') || user_access('bypass node access'))) {
     $nids = array_keys($node_links);
     $select = db_select('node', 'n');
     $select->addField('n', 'nid');
@@ -1511,11 +1511,7 @@ function _menu_tree_check_access(&$tree) {
   $new_tree = array();
   foreach ($tree as $key => $v) {
     $item = &$tree[$key]['link'];
-    // Prevent translating menu links twice.
-    if (!isset($item['menu_link_translated'])) {
-      _menu_link_translate($item);
-      $item['menu_link_translated'] = TRUE;
-    }
+    _menu_link_translate($item);
     if ($item['access'] || ($item['in_active_trail'] && strpos($item['href'], '%') !== FALSE)) {
       if ($tree[$key]['below']) {
         _menu_tree_check_access($tree[$key]['below']);
