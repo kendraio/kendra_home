@@ -212,32 +212,37 @@ function _cleanString($text, $url_safe = FALSE) {
  */
 function kendra_home_mods_menu() {
 
-  $items['admin/mailchimp/subscribe'] = array(
-    'title' => 'Subscribe to mailchimp',
-    'description' => 'Subscribe the user_id to mailchimp',
-    'page callback' => 'kendra_home_mods_mailchimp_subscribe_url',
-    'access arguments' => array('administer users'),
-    'type' => MENU_CALLBACK,
-  );
-  $items['admin/mailchimp/unsubscribe'] = array(
-    'title' => 'Unsubscribe to mailchimp',
-    'description' => 'Unsubscribe the user_id to mailchimp',
-    'page callback' => 'kendra_home_mods_mailchimp_unsubscribe_url',
-    'access arguments' => array('administer users'),
-    'type' => MENU_CALLBACK,
-  );
-  // @todo this is a one off use - so commant out once finished
-  $items['admin/mailchimp/subscribe_all_active_users'] = array(
-    'title' => 'Subscribe all active users to mailchimp',
-    'description' => 'Unsubscribe the user_id to mailchimp',
-    'page callback' => 'kendra_home_mods_mailchimp_subscribe_all',
-    'access arguments' => array('administer users'),
-    'type' => MENU_CALLBACK,
-  );
+  $items = array();
+//  // Test mailchimp functions
+//  $items['admin/mailchimp/subscribe'] = array(
+//    'title' => 'Subscribe to mailchimp',
+//    'description' => 'Subscribe the user_id to mailchimp',
+//    'page callback' => 'kendra_home_mods_mailchimp_subscribe_url',
+//    'access arguments' => array('administer users'),
+//    'type' => MENU_CALLBACK,
+//  );
+//  $items['admin/mailchimp/unsubscribe'] = array(
+//    'title' => 'Unsubscribe to mailchimp',
+//    'description' => 'Unsubscribe the user_id to mailchimp',
+//    'page callback' => 'kendra_home_mods_mailchimp_unsubscribe_url',
+//    'access arguments' => array('administer users'),
+//    'type' => MENU_CALLBACK,
+//  );
+//  // This is a one off use - so commant out once finished
+//  $items['admin/mailchimp/subscribe_all_active_users'] = array(
+//    'title' => 'Subscribe all active users to mailchimp',
+//    'description' => 'Unsubscribe the user_id to mailchimp',
+//    'page callback' => 'kendra_home_mods_mailchimp_subscribe_all',
+//    'access arguments' => array('administer users'),
+//    'type' => MENU_CALLBACK,
+//  );
 
   return $items;
 }
 
+/**
+ * Test mailchimp function for subscribe using a url call
+ */
 function kendra_home_mods_mailchimp_subscribe_url() {
   $list_id = arg(3);
   $uid = arg(4);
@@ -255,6 +260,9 @@ function kendra_home_mods_mailchimp_subscribe_url() {
   }
 }
 
+/**
+* Test mailchimp function for unsubscribe using a url call
+ */
 function kendra_home_mods_mailchimp_unsubscribe_url() {
   $list_id = arg(3);
   $uid = arg(4);
@@ -269,6 +277,9 @@ function kendra_home_mods_mailchimp_unsubscribe_url() {
   }
 }
 
+/**
+ * Temp Function to run a once off mailchimp subscribe for all active users.
+ */
 function kendra_home_mods_mailchimp_subscribe_all() {
   // Load all users
   $query = new EntityFieldQuery;
@@ -278,10 +289,12 @@ function kendra_home_mods_mailchimp_subscribe_all() {
   if (!empty($entities)) {
     // Cycle all users.
     foreach ($entities['user'] as $uid => $obj) {
-      // Subscribe user.
-      kendra_home_mods_mailchimp_subscribe($uid);
-      print 'uid ' . $uid . ' registered for mailchimp</br>';
-      watchdog('kendra_home_mods', 'subscribed uid !uid', array('!uid' => $uid), WATCHDOG_DEBUG);
+      if ($uid > 0) {
+        // Subscribe user.
+        kendra_home_mods_mailchimp_subscribe($uid);
+        print 'uid ' . $uid . ' registered for mailchimp</br>';
+        watchdog('kendra_home_mods', 'subscribed uid !uid', array('!uid' => $uid), WATCHDOG_DEBUG);
+      }
     }
   }
   watchdog('kendra_home_mods', 'subscribed all users', array(), WATCHDOG_DEBUG);
