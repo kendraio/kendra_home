@@ -226,6 +226,14 @@ function kendra_home_mods_menu() {
     'access arguments' => array('administer users'),
     'type' => MENU_CALLBACK,
   );
+  // @todo this is a one off use - so commant out once finished
+  $items['admin/mailchimp/subscribe_all_active_users'] = array(
+    'title' => 'Subscribe all active users to mailchimp',
+    'description' => 'Unsubscribe the user_id to mailchimp',
+    'page callback' => 'kendra_home_mods_mailchimp_subscribe_all',
+    'access arguments' => array('administer users'),
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
 }
@@ -239,7 +247,8 @@ function kendra_home_mods_mailchimp_subscribe_url() {
   else {
     print 'list_id = ' . $list_id;
     print ', Subsribe uid = ' . $uid;
-    kendra_home_mods_mailchimp_subscribe($list_id, $uid);
+    //kendra_home_mods_mailchimp_subscribe($list_id, $uid);
+    kendra_home_mods_mailchimp_subscribe($uid);
     //print $mail;
     //print_r($name);
     //print_r($target_user);
@@ -255,18 +264,47 @@ function kendra_home_mods_mailchimp_unsubscribe_url() {
   else {
     print 'list_id = ' . $list_id;
     print ', Unsubsribe uid = ' . $uid;
-    kendra_home_mods_mailchimp_unsubscribe($list_id, $uid);
+    //kendra_home_mods_mailchimp_unsubscribe($list_id, $uid);
+    kendra_home_mods_mailchimp_unsubscribe($uid);
   }
 }
 
+function kendra_home_mods_mailchimp_subscribe_all() {
+  // Load all users
+  $query = new EntityFieldQuery;
+  $query->entityCondition('entity_type', 'user');
+  $query->propertyCondition('status', 1);
+  $entities = $query->execute();
+  if (!empty($entities)) {
+    // Cycle all users.
+    foreach ($entities['user'] as $uid => $obj) {
+      // Subscribe user.
+      kendra_home_mods_mailchimp_subscribe($uid);
+      print 'uid ' . $uid . ' registered for mailchimp</br>';
+      watchdog('kendra_home_mods', 'subscribed uid !uid', array('!uid' => $uid), WATCHDOG_DEBUG);
+    }
+  }
+  watchdog('kendra_home_mods', 'subscribed all users', array(), WATCHDOG_DEBUG);
+}
 /**
  * Subscribe a user to mailchimp.
  *
  * The $list_id is available from the mailchimp:
  *  list->Settings->List name and Campaign defaults
  */
-function kendra_home_mods_mailchimp_subscribe($list_id, $uid) {
+function kendra_home_mods_mailchimp_subscribe($uid) {
+//function kendra_home_mods_mailchimp_subscribe($list_id, $uid) {
   $target_user = user_load($uid);
+
+//  // Debug code - only register blue-bag users.
+//  if (strpos($target_user->mail, 'blue-bag')) {
+//    // Using the field.
+//    $target_user->field_mc_subscribe['und'][0] = array('subscribe' => 1);
+//    user_save($target_user);
+//    print $target_user->mail . ' Imported !!!!!!!!!!!!!!!!!!!!!!<br/>';
+//  }
+//  return;
+
   // Using the field.
   $target_user->field_mc_subscribe['und'][0] = array('subscribe' => 1);
   user_save($target_user);
