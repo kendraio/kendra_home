@@ -278,10 +278,12 @@ function kendra_home_mods_mailchimp_subscribe_all() {
   if (!empty($entities)) {
     // Cycle all users.
     foreach ($entities['user'] as $uid => $obj) {
-      // Subscribe user.
-      kendra_home_mods_mailchimp_subscribe($uid);
-      print 'uid ' . $uid . ' registered for mailchimp</br>';
-      watchdog('kendra_home_mods', 'subscribed uid !uid', array('!uid' => $uid), WATCHDOG_DEBUG);
+      if ($uid > 9901) {
+        // Subscribe user.
+        kendra_home_mods_mailchimp_subscribe($uid);
+        print 'uid ' . $uid . ' registered for mailchimp</br>';
+        watchdog('kendra_home_mods', 'subscribed uid !uid', array('!uid' => $uid), WATCHDOG_DEBUG);
+      }
     }
   }
   watchdog('kendra_home_mods', 'subscribed all users', array(), WATCHDOG_DEBUG);
