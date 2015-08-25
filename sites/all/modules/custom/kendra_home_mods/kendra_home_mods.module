@@ -278,7 +278,7 @@ function kendra_home_mods_mailchimp_subscribe_all() {
   if (!empty($entities)) {
     // Cycle all users.
     foreach ($entities['user'] as $uid => $obj) {
-      if ($uid > 10825) {
+      if ($uid > 11815) {
         // Subscribe user.
         kendra_home_mods_mailchimp_subscribe($uid);
         print 'uid ' . $uid . ' registered for mailchimp</br>';
