@@ -241,6 +241,54 @@ function kendra_home_mods_menu() {
 }
 
 /**
+ * Implements hook_action_info().
+ */
+function kendra_home_mods_action_info() {
+
+  return array(
+    'kendra_home_mods_subscribe_mailchimp' => array(
+      'label' => t('Subscribe to mailchimp'),
+      'type' => 'user',
+      'configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
+    'kendra_home_mods_unsubscribe_mailchimp_action' => array(
+      'label' => t('Unsubscribe from mailchimp'),
+      'type' => 'user',
+      'configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
+    'kendra_home_mods_resubscribe_mailchimp_action' => array(
+      'label' => t('Resubscribe to mailchimp'),
+      'type' => 'user',
+      'configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
+  );
+}
+
+/**
+ * Action function.
+ */
+function kendra_home_mods_subscribe_mailchimp(&$user, $context = array()) {
+  $uid = $user->uid;
+  kendra_home_mods_mailchimp_subscribe($uid);
+}
+
+
+function kendra_home_mods_unsubscribe_mailchimp_action(&$user, $context = array()) {
+  $uid = $user->uid;
+  kendra_home_mods_mailchimp_unsubscribe($uid);
+}
+
+function kendra_home_mods_resubscribe_mailchimp_action(&$user, $context = array()) {
+  $uid = $user->uid;
+  kendra_home_mods_mailchimp_unsubscribe($uid);
+  kendra_home_mods_mailchimp_subscribe($uid);
+}
+
+
+/**
  * Test mailchimp function for subscribe using a url call
  */
 function kendra_home_mods_mailchimp_subscribe_url() {
@@ -352,7 +400,7 @@ function kendra_home_mods_mailchimp_subscribe($uid) {
  * The $list_id is available from the mailchimp:
  *  list->Settings->List name and Campaign defaults
  */
-function kendra_home_mods_mailchimp_unsubscribe($list_id, $uid) {
+function kendra_home_mods_mailchimp_unsubscribe($uid) {
   $target_user = user_load($uid);
   // Using the field.
   $target_user->field_mc_subscribe['und'][0] = array('subscribe' => 0);
