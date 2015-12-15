@@ -284,7 +284,7 @@ function kendra_home_mods_unsubscribe_mailchimp_action(&$user, $context = array(
 function kendra_home_mods_resubscribe_mailchimp_action(&$user, $context = array()) {
   $uid = $user->uid;
   kendra_home_mods_mailchimp_unsubscribe($uid);
-  sleep(3);
+  sleep(10);
   kendra_home_mods_mailchimp_subscribe($uid);
 }
 
