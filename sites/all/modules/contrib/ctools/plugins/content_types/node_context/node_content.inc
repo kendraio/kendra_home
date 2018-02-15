@@ -27,11 +27,11 @@ $plugin = array(
  * Render the node content.
  */
 function ctools_node_content_content_type_render($subtype, $conf, $panel_args, $context) {
-  if (!empty($context) && empty($context->data)) {
+  if (!empty($context) && ( empty($context->data) || empty($context->data->nid)) ){
     return;
   }
 
-  $node = isset($context->data) ? clone($context->data) : NULL;
+  $node = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'node';
   $block->delta  = $node->nid;
