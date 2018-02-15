@@ -137,29 +137,32 @@ function ctools_entity_field_content_type_render($subtype, $conf, $panel_args, $
     $field_settings['settings'] = $conf['formatter_settings'];
   }
 
-  $all_values = field_get_items($entity_type, $entity, $field_name, $language);
-  if (!is_array($all_values)) {
-    // Do not render if the field is empty.
-    return;
-  }
-
-  // Reverse values.
-  if (isset($conf['delta_reversed']) && $conf['delta_reversed']) {
-    $all_values = array_reverse($all_values, TRUE);
-  }
-
-  if (isset($conf['delta_limit'])) {
-    $offset = intval($conf['delta_offset']);
-    $limit = !empty($conf['delta_limit']) ? $conf['delta_limit'] : NULL;
-    $all_values = array_slice($all_values, $offset, $limit, TRUE);
-  }
-
   $clone = clone $entity;
-  $clone->{$field_name}[$language] = $all_values;
+  $all_values = field_get_items($entity_type, $entity, $field_name, $language);
+
+  if (is_array($all_values)) {
+    // Reverse values.
+    if (isset($conf['delta_reversed']) && $conf['delta_reversed']) {
+      $all_values = array_reverse($all_values, TRUE);
+    }
+
+    if (isset($conf['delta_limit'])) {
+      $offset = intval($conf['delta_offset']);
+      $limit = !empty($conf['delta_limit']) ? $conf['delta_limit'] : NULL;
+      $all_values = array_slice($all_values, $offset, $limit, TRUE);
+    }
+
+    $clone->{$field_name}[$language] = $all_values;
+  }
+
   $field_output = field_view_field($entity_type, $clone, $field_name, $field_settings, $language);
 
-  if (!empty($field_output) && !empty($conf['override_title'])) {
-    $field_output['#title'] = filter_xss_admin($conf['override_title_text']);
+  if (!empty($field_output)) {
+    if (!empty($conf['override_title'])) {
+      $field_output['#title'] = filter_xss_admin($conf['override_title_text']);
+    }
+    $field_output['#ctools_context'] = $context;
+    $field_output['#post_render'][] = 'ctools_entity_field_content_type_substitute_keywords';
   }
 
   // Build the content type block.
@@ -173,6 +176,13 @@ function ctools_entity_field_content_type_render($subtype, $conf, $panel_args, $
   $block->delta   = $ids[0];
 
   return $block;
+}
+
+/**
+ * Replace context keywords.
+ */
+function ctools_entity_field_content_type_substitute_keywords($markup, array $element) {
+  return ctools_context_keyword_substitute($markup, array(), array($element['#ctools_context']));
 }
 
 /**
@@ -231,6 +241,11 @@ function ctools_entity_field_content_type_formatter_styles($form, &$form_state) 
   ctools_form_include($form_state, 'field_ui.admin', 'field_ui', '');
   ctools_form_include($form_state, 'fields');
 
+  $form['ctools_keywords'] = array(
+    '#type' => 'item',
+    '#description' => t('You may use keywords for substitutions.'),
+  );
+
   $form['ctools_field_list'] = array(
     '#type' => 'value',
     '#value' => array(),
@@ -270,10 +285,7 @@ function ctools_entity_field_content_type_admin_title($subtype, $conf, $context)
     $identifier = $context->identifier;
   }
   else {
-    $type = 'ctools_entity_field_content_type_admin_title';
-    $message = t('Context is missing for field: @name', array('@name' => $subtype));
-    $variables = array($subtype, $conf, $context);
-    watchdog($type, $message, $variables, $severity = WATCHDOG_NOTICE);
+    watchdog('ctools_entity_field_content_type_admin_title', 'Context is missing for field: @name', array('@name' => $subtype), WATCHDOG_NOTICE);
     $identifier = t('Unknown');
   }
 
