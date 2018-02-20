@@ -209,7 +209,12 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
     $view->override_path = $conf['path'];
   }
   else if ($path = $view->display_handler->get_option('inherit_panels_path')) {
-    $view->override_path = $_GET['q'];
+    if (drupal_is_front_page()) {
+      $view->override_path = '';
+    }
+    else {
+      $view->override_path = $_GET['q'];
+    }
   }
 
   $block = new stdClass();
@@ -320,6 +325,10 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
  */
 function views_content_views_panes_add_defaults(&$conf, $view) {
   $pager = $view->display_handler->get_option('pager');
+
+  if (empty($conf)) {
+    $conf = array();
+  }
 
   $conf += array(
     'link_to_view' => $view->display_handler->get_option('link_to_view'),

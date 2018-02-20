@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Ctools content-type plugin to provide a comment-reply form (replying either
+ * CTools content-type plugin to provide a comment-reply form (replying either
  * to a node or to another comment).
  */
 
@@ -25,7 +25,7 @@ if (module_exists('comment')) {
 
 function ctools_comment_reply_form_content_type_render($subtype, $conf, $panel_args, $context) {
 
-  $comment = ($context[1]->identifier == t('No context')) ? NULL : clone($context[1]->data);
+  $comment = ($context[1]->identifier == t('No context')) ? NULL : clone $context[1]->data;
   $block = new stdClass();
   $block->module = 'comments';
   if ($comment) $block->delta  = $comment->cid;
