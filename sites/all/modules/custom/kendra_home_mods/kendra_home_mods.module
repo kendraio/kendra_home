@@ -416,3 +416,16 @@ function kendra_home_mods_mailchimp_unsubscribe($uid) {
   print_r($mailchimp_result);
   //drupal_set_message(print_r($mailchimp_result, TRUE));
 }
+
+/**
+ * Implements hook_user_view().
+ * Hides users who have asked to be hidden
+ */
+function kendra_home_mods_user_view($account, $view_mode) {
+  $uid = is_object($account) ? $account->uid : (int) $account;
+    if (($account->field_user_listed['und'][0]['value'] == 0)
+       && !($GLOBALS['user']->uid == $uid || user_access('administer users'))) {
+      //drupal_access_denied();
+      drupal_goto('node/10585');
+    }
+}
