@@ -423,9 +423,58 @@ function kendra_home_mods_mailchimp_unsubscribe($uid) {
  */
 function kendra_home_mods_user_view($account, $view_mode) {
   $uid = is_object($account) ? $account->uid : (int) $account;
-    if (($account->field_user_listed['und'][0]['value'] == 0)
-       && !($GLOBALS['user']->uid == $uid || user_access('administer users'))) {
-      //drupal_access_denied();
-      drupal_goto('node/10585');
+
+  //default to not being able to view the user.
+  $can_view = FALSE;
+
+  //if it is user or administrator then it's OK to view
+  if ($GLOBALS['user']->uid == $uid || user_access('administer users')) {
+    $can_view = TRUE;
+  }
+  else {
+    //We need more checks
+    $user_approved = kendra_home_mods_user_approved($uid);
+
+    if ($user_approved &&
+        ($account->field_user_listed['und'][0]['value'] == 1)) {
+      $can_view = TRUE;
     }
+  }
+
+  //Redirect if we not allowed to view.
+  if (!$can_view) {
+    //drupal_access_denied();
+    drupal_goto('node/10585');
+  }
+}
+
+/**
+ * Function to return the role ID from the role name.
+ */
+function kendra_home_mods_get_role_by_name($name) {
+  $roles = user_roles();
+  return array_search($name, $roles);
+}
+
+/**
+ * Function to determine if a user is approved.
+ */
+function kendra_home_mods_user_approved($uid) {
+  $account = user_load($uid);
+  $approved_role = kendra_home_mods_get_role_by_name('approved');
+  $active_role = kendra_home_mods_get_role_by_name('active');
+
+  $user_status = $account->status;
+  $user_role_approved = user_has_role($approved_role, $account);
+  $user_role_active = user_has_role($active_role, $account);
+
+  if ($user_status && $user_role_active && $user_role_approved) {
+    //if the user status is active and they have the correct roles
+    $user_validated = TRUE;
+  }
+  else {
+    $user_validated = FALSE;
+  }
+
+  return $user_validated;
 }
