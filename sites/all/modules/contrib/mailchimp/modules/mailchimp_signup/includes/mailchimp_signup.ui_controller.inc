@@ -15,8 +15,8 @@ class MailChimpSignupUIController extends EntityDefaultUIController {
    */
   public function hook_menu() {
     $items = parent::hook_menu();
-    $items[$this->path]['title'] = 'Signup Forms';
-    $items[$this->path]['description'] = 'Manage MailChimp Signup blocks and pages.';
+    $items[$this->path]['title'] = t('Signup Forms');
+    $items[$this->path]['description'] = t('Manage MailChimp Signup blocks and pages.');
     $items[$this->path]['type'] = MENU_LOCAL_TASK;
     $items[$this->path]['weight'] = 10;
     $items[$this->path]['access callback'] = 'mailchimp_signup_entity_access';
@@ -29,7 +29,7 @@ class MailChimpSignupUIController extends EntityDefaultUIController {
    */
   public function overviewTable($conditions = array()) {
     $render = parent::overviewTable($conditions);
-    $mc_lists = mailchimp_get_lists();
+    $mc_lists = mailchimp_get_lists(array(), FALSE);
     foreach ($render['#rows'] as &$row) {
       $signup = $row[0]['data']['#url']['options']['entity'];
       $modes = NULL;
@@ -51,10 +51,10 @@ class MailChimpSignupUIController extends EntityDefaultUIController {
       }
       $list_labels = array();
       foreach ($signup->mc_lists as $list_id) {
-        $list_labels[] = l($mc_lists[$list_id]['name'], 'https://admin.mailchimp.com/lists/dashboard/overview?id=' . $mc_lists[$list_id]['web_id']);
+        $list_labels[] = l($mc_lists[$list_id]->name, 'https://admin.mailchimp.com/lists');
       }
       if ($block_only) {
-        $access = 'N/A - this form only exists as a block';
+        $access = t('N/A - this form only exists as a block');
       }
       else {
         $all_roles_allowed = user_roles(FALSE, 'mailchimp_signup_all_forms' . $signup->name);
