@@ -34,23 +34,27 @@ stylesheets[all][] = css/style.css
 ; ;----------------------------------
 ; ; METHOD 1: Bootstrap Source Files
 ; ;----------------------------------
-; 
+;
 ; ;;;;;;;;;;;;;;;;;;;;;
 ; ;; Scripts
 ; ;;;;;;;;;;;;;;;;;;;;;
-; 
-scripts[] = 'js/bootstrap/affix.js'
-scripts[] = 'js/bootstrap/alert.js'
-scripts[] = 'js/bootstrap/button.js'
-scripts[] = 'js/bootstrap/carousel.js'
-scripts[] = 'js/bootstrap/collapse.js'
-scripts[] = 'js/bootstrap/dropdown.js'
-scripts[] = 'js/bootstrap/modal.js'
-scripts[] = 'js/bootstrap/tooltip.js'
-scripts[] = 'js/bootstrap/popover.js'
-scripts[] = 'js/bootstrap/scrollspy.js'
-scripts[] = 'js/bootstrap/tab.js'
-scripts[] = 'js/bootstrap/transition.js'
+;
+;; The Sass bootstrap library is base don the insecure 3.3.7 version
+;; Therefore we have replaced the javascript with the minifed 3.4.0 version
+
+;scripts[] = 'js/bootstrap/affix.js'
+;scripts[] = 'js/bootstrap/alert.js'
+;scripts[] = 'js/bootstrap/button.js'
+;scripts[] = 'js/bootstrap/carousel.js'
+;scripts[] = 'js/bootstrap/collapse.js'
+;scripts[] = 'js/bootstrap/dropdown.js'
+;scripts[] = 'js/bootstrap/modal.js'
+;scripts[] = 'js/bootstrap/tooltip.js'
+;scripts[] = 'js/bootstrap/popover.js'
+;scripts[] = 'js/bootstrap/scrollspy.js'
+;scripts[] = 'js/bootstrap/tab.js'
+;scripts[] = 'js/bootstrap/transition.js'
+scripts[] = 'js/bootstrap.min.js'
 ;
 ; ; Disable BootstrapCDN if using Bootstrap source files in your sub-theme.
 ; settings[bootstrap_cdn] = ''
@@ -67,5 +71,5 @@ scripts[] = 'js/bootstrap/transition.js'
 ; ;;;;;;;;;;;;;;;;;;;;;
 ; ;; Panels Layouts
 ; ;;;;;;;;;;;;;;;;;;;;;
-; 
+;
 plugins[panels][layouts] = plugins/layouts
