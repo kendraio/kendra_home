@@ -13,26 +13,26 @@ function mailchimp_lists_overview_page() {
   $rows = array();
   $webhook_url = mailchimp_webhook_url();
   foreach ($mc_lists as $mc_list) {
-    $webhooks = mailchimp_webhook_get($mc_list['id']);
+    $webhooks = mailchimp_webhook_get($mc_list->id);
     $enabled = FALSE;
     if ($webhooks) {
       foreach ($webhooks as $webhook) {
-        if ($webhook_url == $webhook['url']) {
+        if ($webhook_url == $webhook->url) {
           $enabled = TRUE;
           continue;
         }
       }
     }
     if ($enabled) {
-      // This is a webhook for this Mailchimp Module.
-      $webhook_status = "ENABLED (" . l(t('disable'), 'admin/config/services/mailchimp/lists/' . $mc_list['id'] . '/webhook/disable') . ')';
+      // This is a webhook for this MailChimp Module.
+      $webhook_status = t('ENABLED') . ' (' . l(t('disable'), 'admin/config/services/mailchimp/lists/' . $mc_list->id . '/webhook/disable') . ')';
     }
     else {
-      $webhook_status = "disabled (" . l(t('enable'), 'admin/config/services/mailchimp/lists/' . $mc_list['id'] . '/webhook/enable') . ')';
+      $webhook_status = t('disabled') . ' (' . l(t('enable'), 'admin/config/services/mailchimp/lists/' . $mc_list->id . '/webhook/enable') . ')';
     }
     $rows[] = array(
-      l($mc_list['name'], 'https://admin.mailchimp.com/lists/dashboard/overview?id=' . $mc_list['web_id']),
-      $mc_list['stats']['member_count'],
+      l($mc_list->name, 'https://admin.mailchimp.com/lists'),
+      $mc_list->stats->member_count,
       $webhook_status,
     );
 
@@ -45,7 +45,7 @@ function mailchimp_lists_overview_page() {
     ),
     'rows' => $rows,
   );
-  $refresh_link = l(t('Refresh lists from Mailchimp'),
+  $refresh_link = l(t('Refresh lists from MailChimp'),
     'admin/config/services/mailchimp/list_cache_clear',
     array('query' => array('destination' => 'admin/config/services/mailchimp/lists')));
   if (empty($mc_lists)) {
@@ -54,9 +54,9 @@ function mailchimp_lists_overview_page() {
       array('!link' => l(t('MailChimp'), 'https://admin.mailchimp.com/lists/'))), 'warning');
   }
   else {
-    $options = 'Currently Available MailChimp lists:<i>';
+    $options = t('Currently Available MailChimp lists').':<i>';
     foreach ($mc_lists as $mc_list) {
-      $options .= ' ' . $mc_list['name'] . ',';
+      $options .= ' ' . $mc_list->name . ',';
     }
     $options = rtrim($options, ',');
     $options .= ".</i><br />" . $refresh_link;
@@ -81,7 +81,7 @@ function mailchimp_lists_fields_overview_page() {
             $entity_type,
             $bundle,
             $field['field_name'],
-            l(t('Update Mailchimp Mergevar Values'), $link),
+            l(t('Update MailChimp Mergevar Values'), $link),
           );
         }
       }
@@ -97,12 +97,12 @@ function mailchimp_lists_fields_overview_page() {
     'rows' => $rows,
   );
 
-  $table['caption'] = t("This displays a list of all Mailchimp Subscription Fields configured on your system, with a row for each unique Instance of that field.
+  $table['caption'] = t("This displays a list of all MailChimp Subscription Fields configured on your system, with a row for each unique Instance of that field.
     To edit each field's settings, go to the Entity Bundle's configuration screen and use the Field UI.
     When entities with MailChimp Subscription Fields are updated, the Merge Variables configured through Field UI are automatically updated if necessary.
     However, if you have existing subscribers on MailChimp and matching Entities on Drupal when you configure your Merge Variables, the existing values are not synced automatically,
     as this could be a slow process. You can manually force updates of all existing Merge Values to existing MailChimp subscribers for each field configuration using the 'Batch Update'
-    option on this table. The MailChimp Subscription Field is provided by the Mailchimp Lists (mailchimp_lists) module.<br/><br/>
+    option on this table. The MailChimp Subscription Field is provided by the MailChimp Lists (mailchimp_lists) module.<br/><br/>
     The following MailChimp Subscription Field instances were found:");
 
   return theme('table', $table);
@@ -126,12 +126,12 @@ function mailchimp_lists_webhook_form($form, &$form_state, $list_id, $action) {
       default:
         return array();
     }
-    $label = $action . " webhooks";
+    $label = t($action) . " webhooks";
     return confirm_form($form,
       t('Are you sure you want to &action webhooks for %name?',
         array(
-          '&action' => $action,
-          '%name' => $list['name'],
+          '&action' => t($action),
+          '%name' => $list->name,
         )),
       'admin/config/services/mailchimp/lists',
       t('You can change this setting back from the mailchimp administrative UI.'),
@@ -145,13 +145,23 @@ function mailchimp_lists_webhook_form($form, &$form_state, $list_id, $action) {
  * Submit handler for mailchimp_lists_webhook_form().
  */
 function mailchimp_lists_webhook_form_submit($form, &$form_state) {
-  $list_id = $form_state['list']['id'];
+  $list_id = $form_state['list']->id;
   switch ($form_state['action']) {
     case 'enable':
       $result = mailchimp_webhook_add(
         $list_id,
         mailchimp_webhook_url(),
-        array('unsubscribe', 'profile', 'cleaned', 'upemail')
+        array(
+          'unsubscribe' => TRUE,
+          'profile' => TRUE,
+          'cleaned' => TRUE,
+          'upemail' => TRUE,
+        ),
+        array(
+          'user' => TRUE,
+          'admin' => TRUE,
+          'api' => FALSE,
+        )
       );
       break;
 
@@ -170,7 +180,7 @@ function mailchimp_lists_webhook_form_submit($form, &$form_state) {
   if ($result) {
     drupal_set_message(t('Webhooks for list "%name" have been %action.',
       array(
-        '%name' => $form_state['list']['name'],
+        '%name' => $form_state['list']->name,
         '%action' => $form_state['action'] . 'd',
       )
     ));
@@ -178,7 +188,7 @@ function mailchimp_lists_webhook_form_submit($form, &$form_state) {
   else {
     drupal_set_message(t('Unable to perform webhook action "%action" for list "%name".',
       array(
-        '%name' => $form_state['list']['name'],
+        '%name' => $form_state['list']->name,
         '%action' => $form_state['action'],
       )
     ), 'warning');
@@ -204,12 +214,12 @@ function mailchimp_lists_update_mergevars_form($form, &$form_state, $entity_type
     return confirm_form($form,
       t('Update Merge Fields on %list for all @entity_type -- @bundle entities?',
         array(
-          '%list' => $list['name'],
+          '%list' => $list->name,
           '@entity_type' => $entity_type,
           '@bundle' => $bundle_name,
         )),
       'admin/config/services/mailchimp/lists',
-      t('This can overwrite values configured directly on your Mailchimp Account.'),
+      t('This can overwrite values configured directly on your MailChimp Account.'),
       "Update Merge Values"
     );
   }

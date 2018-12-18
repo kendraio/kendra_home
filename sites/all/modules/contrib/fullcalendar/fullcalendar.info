@@ -10,9 +10,9 @@ dependencies[] = date_views
 files[] = includes/views/handlers/fullcalendar_handler_field_gcal.inc
 files[] = includes/views/plugins/fullcalendar_plugin_style_fullcalendar.inc
 
-; Information added by Drupal.org packaging script on 2013-12-09
-version = "7.x-2.0+5-dev"
+; Information added by Drupal.org packaging script on 2014-09-09
+version = "7.x-2.0+7-dev"
 core = "7.x"
 project = "fullcalendar"
-datestamp = "1386569020"
+datestamp = "1410296274"
 

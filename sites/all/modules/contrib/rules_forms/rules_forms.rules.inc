@@ -24,6 +24,11 @@ function rules_forms_rules_event_info() {
 
   $events = array();
   foreach ($form_info as $form_id => $info) {
+    // Ignore forms with malformed information.
+    if (!isset($info['label']) || $info['label'] == FALSE) {
+      continue;
+    }
+
     $events['rules_forms_' . $form_id . '_form_built'] = $defaults + array(
       'label' => t('@form is being built', array('@form' => $info['label'])),
       'variables' => rules_forms_event_variables() + rules_forms_element_variables($form_id),
@@ -40,12 +45,12 @@ function rules_forms_rules_event_info() {
     if ($info['buttons'] && isset($info['submit'])) {
       foreach ($info['submit'] as $element_id => $label) {
         // Add button validate events.
-        $events['rules_forms_'. $form_id .'_button_'. str_replace(':', '_', $element_id) .'_validate'] = $defaults + array(
+        $events['rules_forms_' . $form_id . '_button_' . str_replace(':', '_', $element_id) . '_validate'] = $defaults + array(
           'label' => t('@form @button button is being validated', array('@form' => $info['label'], '@button' => strtolower($label))),
           'variables' => rules_forms_event_variables() + rules_forms_element_variables($form_id),
         );
         // Add button submit events.
-        $events['rules_forms_'. $form_id .'_button_'. str_replace(':', '_', $element_id) .'_submit'] = $defaults + array(
+        $events['rules_forms_' . $form_id . '_button_' . str_replace(':', '_', $element_id) . '_submit'] = $defaults + array(
           'label' => t('@form @button button is being submitted', array('@form' => $info['label'], '@button' => strtolower($label))),
           'variables' => rules_forms_event_variables() + rules_forms_element_variables($form_id),
         );
@@ -74,6 +79,10 @@ function rules_forms_event_variables() {
       'type' => 'text',
       'label' => t('Form ID'),
     ),
+    'entity' => array(
+      'type' => 'entity',
+      'label' => t('Entity if entity form.'),
+    ),
     'user' => array(
       'type' => 'user',
       'label' => t('Logged in user'),
@@ -82,10 +91,11 @@ function rules_forms_event_variables() {
 }
 
 /**
- * Adds element variables for the form. Each form element ID is passed as
- * a variable to the rule for access in conditions and actions. This allows
- * us to provide a select list of elements rather than having to cut-and-paste
- * element IDs.
+ * Adds element variables for the form.
+ *
+ * Each form element ID is passed as a variable to the rule for access in
+ * conditions and actions. This allows us to provide a select list of
+ * elements rather than having to cut-and-paste element IDs.
  */
 function rules_forms_element_variables($form_id) {
   $variables = array();
@@ -96,6 +106,9 @@ function rules_forms_element_variables($form_id) {
         'type' => 'form_element',
         'label' => $info['label'],
       );
+      if (isset($info['options'])) {
+        $variables[$key]['options'] = $info['options'];
+      }
     }
   }
   return $variables;
@@ -133,8 +146,7 @@ function rules_forms_rules_condition_info() {
         'type' => 'boolean',
         'label' => t('Evaluate as regular expression'),
         'optional' => TRUE,
-        'description' => t('Perform the data comparison using the provided value as a regular expression. '.
-                           'To execute multiple regular expressions, enter one expression per line.'),
+        'description' => t('Perform the data comparison using the provided value as a regular expression. To execute multiple regular expressions, enter one expression per line.'),
       ),
     ),
     'base' => 'rules_forms_condition_element_value',
@@ -186,6 +198,30 @@ function rules_forms_rules_condition_info() {
       ),
     ),
     'base' => 'rules_forms_condition_button_clicked',
+    'callbacks' => array(
+      'access' => 'rules_forms_integration_access',
+      'form_alter' => 'rules_forms_element_form_alter',
+    ),
+  );
+  $conditions['rules_forms_element_is_empty_value'] = array(
+    'label' => t('Form element is empty'),
+    'group' => 'Rules Forms',
+    'parameter' => array(
+      'form' => array(
+        'type' => 'form',
+        'label' => t('Form'),
+      ),
+      'form_state' => array(
+        'type' => 'form_state',
+        'label' => t('Form state'),
+      ),
+      'element' => array(
+        'type' => 'form_element',
+        'label' => t('Form element'),
+        'description' => t('The form element to be targeted.'),
+      ),
+    ),
+    'base' => 'rules_forms_condition_element_is_empty_value',
     'callbacks' => array(
       'access' => 'rules_forms_integration_access',
       'form_alter' => 'rules_forms_element_form_alter',
@@ -369,7 +405,7 @@ function rules_forms_rules_action_info() {
   $actions['rules_forms_set_error'] = array(
     'label' => t('Set an error on the form'),
     'group' => 'Rules Forms',
-    'parameter' =>  array(
+    'parameter' => array(
       'form' => array('type' => 'form', 'label' => t('Form')),
       'element' => array(
         'type' => 'form_element',
@@ -394,8 +430,16 @@ function rules_forms_rules_action_info() {
     'parameter' => array(
       'form_state' => array('type' => 'form_state', 'label' => t('Form state')),
       'path' => array('type' => 'text', 'label' => t('Path')),
-      'query' => array('type' => 'text', 'label' => t('Query'), 'optional' => TRUE),
-      'fragment' => array('type' => 'text', 'label' => t('Fragment'), 'optional' => TRUE),
+      'query' => array(
+        'type' => 'text',
+        'label' => t('Query'),
+        'optional' => TRUE,
+      ),
+      'fragment' => array(
+        'type' => 'text',
+        'label' => t('Fragment'),
+        'optional' => TRUE,
+      ),
     ),
     'base' => 'rules_forms_action_redirect',
     'access callback' => 'rules_forms_integration_access',
@@ -416,8 +460,7 @@ function _rules_forms_weight_options() {
 }
 
 /**
- * Provides a standard explanaition of how to use element IDs with
- * conditions and actions.
+ * Provides a explanation of how to use element IDs with conditions and actions.
  */
 function _rules_forms_element_description() {
   return t('Examples on the "Create Article" form: "title" for the title field or "body[und][0][value]" for the body field.');
@@ -493,6 +536,14 @@ function rules_forms_element_form_alter(&$form, &$form_state, $options, RulesAbs
         $form['parameter']['regex']['#access'] = FALSE;
         $form['parameter']['regex']['settings']['regex']['#type'] = 'value';
         $form['parameter']['regex']['settings']['regex']['#value'] = 0;
+      }
+    }
+    if (isset($form['parameter']['value']['settings']['value'])) {
+      $variables = $element->availableVariables();
+      $element_var = $variables[$element->settings['element']];
+      if (isset($element_var['options'])) {
+        $form['parameter']['value']['settings']['value']['#type'] = 'select';
+        $form['parameter']['value']['settings']['value']['#options'] = $element_var['options'];
       }
     }
     // Hide the reload button in case js is enabled and it's not the first step.

@@ -7,7 +7,8 @@
 }
 
 form fieldset .formtips-processed,
-.formtips-processed {
+.formtips-processed,
+form .form-item div.formtips-processed {
   position: absolute;
   background-color: #111;
   color: #ddd;

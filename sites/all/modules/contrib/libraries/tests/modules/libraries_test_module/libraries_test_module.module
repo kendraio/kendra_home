@@ -18,6 +18,9 @@ function libraries_test_module_libraries_info() {
   // Test library detection.
   $libraries['example_missing'] = array(
     'name' => 'Example missing',
+    // Provide a vendor and download URL to test that the UI links to it.
+    'vendor url' => 'http://example.com',
+    'download url' => 'http://example.com/download',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/libraries/missing',
   );
   $libraries['example_undetected_version'] = array(
@@ -28,6 +31,8 @@ function libraries_test_module_libraries_info() {
   );
   $libraries['example_unsupported_version'] = array(
     'name' => 'Example unsupported version',
+    // Provide a download URL to test that the UI links to it.
+    'download url' => 'http://example.com/download',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/libraries/example',
     'version callback' => '_libraries_test_module_return_version',
     'version arguments' => array('1'),
@@ -92,6 +97,24 @@ function libraries_test_module_libraries_info() {
         'php' => array('libraries_test_module.inc'),
       ),
     ),
+  );
+
+  // Test loading of integration files after library files.
+  // We test the correct loading order by calling a function that is defined in
+  // example_1.php in libraries_test_module_post_load.inc.
+  $libraries['example_module_integration_files_post_load'] = array(
+    'name' => 'Example module post-load integration files',
+    'library path' => drupal_get_path('module', 'libraries') . '/tests/libraries/example',
+    'version' => '1',
+    'files' => array(
+      'php' => array('example_1.php'),
+    ),
+    'integration files' => array(
+      'libraries_test_module' => array(
+        'php' => array('libraries_test_module_post_load.inc'),
+      ),
+    ),
+    'post-load integration files' => TRUE,
   );
 
   // Test version overloading.
@@ -516,6 +539,10 @@ function libraries_test_module_menu() {
   $items['libraries-test-module/module-integration-files'] = $base + array(
     'title' => 'Test module integration files',
     'page arguments' => array('example_module_integration_files'),
+  );
+  $items['libraries-test-module/module-integration-files-post-load'] = $base + array(
+   'title' => 'Test module post-load integration files',
+    'page arguments' => array('example_module_integration_files_post_load'),
   );
   $items['libraries-test-module/theme-integration-files'] = $base + array(
     'title' => 'Test theme integration files',

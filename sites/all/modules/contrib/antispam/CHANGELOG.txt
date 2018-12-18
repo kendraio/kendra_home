@@ -1,0 +1,22 @@
+AntiSpam 7.x-1.6, 2017-08-01
+----------------------------
+- Fixed a bug that was causing node spam history to be deleted rather than comment spam history.
+- Fixed a bug that showed "Anonymous" as the comment author name for any logged-out comment.
+- Fixed a bug causing user comment signatures to be hidden.
+- Removed the assumption that the comment module is enabled.
+- Fixed a bug causing unpublished nodes to appear as published in the admin.
+- Added basic Webform integration.
+- Fixed a bug causing the module to break during installation.
+- Fixed a bug causing PHP warnings.
+- Removed obsolete service Typepad Antispam.
+- Removed obsolete service Defensio.
+- Fixed a bug causing the submit-spam API call to be used incorrectly.
+- Removed a superfluous confirmation message after a comment is submitted.
+- Added feedback when the API key that is entered is not valid.
+- Updating wording of the spam/ham links to be "Spam" and "Not Spam."
+- Reduced the possibility of conflicts with other modules.
+- Fixed a bug that was not checking the Subject field of comments for spam.
+
+AntiSpam 7.x-1.5, 2012-07-09
+----------------------------
+- Ensure that the module can be enabled in Drupal 7

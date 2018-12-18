@@ -25,6 +25,7 @@ function pm_existing_pages_schema() {
         'minimum_version' => 1,
         'current_version' => 1,
       ),
+      'status callback' => 'pm_existing_pages_set_status',
     ),
 
     'fields' => array(
