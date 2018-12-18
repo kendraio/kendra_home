@@ -210,7 +210,12 @@ function editablefields_fallback_formatter($entity_type, $entity, $field, $insta
   $display['type'] = $display['settings']['fallback_format'];
   $display['settings'] = $display['settings']['fallback_settings'];
   $formatter_type = field_info_formatter_types($display['type']);
-  $display['module'] = $formatter_type['module'];
+  if (isset($formatter_type['module'])) {
+    $display['module'] = $formatter_type['module'];
+  }
+  else {
+    return;
+  }
 
   // Clone the entity to avoid messing with it.
   $cloned_entity = clone $entity;
@@ -223,7 +228,7 @@ function editablefields_fallback_formatter($entity_type, $entity, $field, $insta
  */
 function editablefields_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, &$items, $display) {
   if (!$display['type'] == 'editable') {
-    continue;
+    return;
   }
 
   $field_name = $field['field_name'];
@@ -405,6 +410,9 @@ function editablefields_form($form, &$form_state, $entity_type, $entity, $field,
     );
   }
 
+  // Specify the form build id to allow drupal to find the form cache.
+  $form['#build_id'] = 'editablefields_form__' . $entity_type . '__' . $id . '__' . $vid . '__' . $field['field_name'];
+
   return $form;
 }
 
@@ -538,35 +546,20 @@ function editablefields_form_submit(&$form, &$form_state) {
   _editablefields_set_edit_mode($form_state, FALSE, $parents);
   // Re-load the entity so that changes from multiple editable fields will be
   // saved correctly.
-  $entity = entity_load($element['#entity_type'], array($element['#entity_id']));
-  $entity = reset($entity);
+  $entity_type = $element['#entity_type'];
+  $entity_id = $element['#entity_id'];
+  $entity = entity_load_single($entity_type, $entity_id);
 
   // Populate default node settings, e.g. revision.
-  if ($element['#entity_type'] == 'node') {
+  if ($entity_type == 'node') {
     node_object_prepare($entity);
   }
-  entity_form_submit_build_entity($element['#entity_type'], $entity, $element, $form_state);
+  entity_form_submit_build_entity($entity_type, $entity, $element, $form_state);
+  entity_save($entity_type, $entity);
 
-  // Validate element, which was changed, using standard drupal field validation.
-  $errors = array();
-  _field_invoke_default('extract_form_values', $element['#entity_type'], $entity, $form, $form_state);
-  _field_invoke('validate', $element['#entity_type'], $entity, $errors);
-  // Got errors, attach error message to element.
-  if ($errors) {
-    foreach($errors[$parents[0]][$element['#langcode']][0] as $error) {
-      form_error($element, $error['message']);
-    }
-  } else {
-    // TODO: needs a try / catch.
-    entity_save($element['#entity_type'], $entity);
-    $form_state['rebuild'] = TRUE;
-    // Put back the updated entity for used during form rebuild.
-    $form_state['editablefields_entities'][$element['#entity_type']][$element['#entity_id']] = $entity;
-  }
-
-  // Re-load the entity so that fields can act on the new value.
-  $entity = entity_load($element['#entity_type'], array($element['#entity_id']));
-  $form_state['editablefields_entities'][$element['#entity_type']][$element['#entity_id']] = reset($entity);
+  $form_state['rebuild'] = TRUE;
+  // Put back the updated entity for used during form rebuild.
+  $form_state['editablefields_entities'][$entity_type][$entity_id] = $entity;
 }
 
 /**

@@ -1,41 +1,36 @@
 <?php
+/**
+ * @file
+ * The antispam admin theme.
+ *
+ * Administration functions for managing the module.
+ */
 
 /**
  * Truncate size of content body for the tooltip
  */
-define('BODY_TOOLTIP_LEN', 128);
+define('ANTISPAM_BODY_TOOLTIP_LEN', 128);
 
 function antispam_settings_form_validate($form, &$form_state) {
-
+  // If connection enabled, then validate the entered API key.
   if ($form_state['values']['antispam_connection_enabled']) {
-    // if connection enabled, then check and validate the entered API key
-
     $service_provider = $form_state['values']['antispam_service_provider'];
     switch ($service_provider) {
-      case AKISMET_SERVICE:
+      case ANTISPAM_AKISMET_SERVICE:
         $apikey = $form_state['values']['antispam_wpapikey'];
         $apikey_form_element = 'antispam_wpapikey';
         if (empty($apikey)) {
-          form_set_error('antispam_wpapikey', t('You must enter an API key from the service provider to use AntiSpam module'));
+          form_set_error('antispam_wpapikey', t('You must enter an Akismet API key in order to use the AntiSpam module.'));
         }
         break;
-      case TYPEPAD_SERVICE:
-        $apikey = $form_state['values']['antispam_tpapikey'];
-        $apikey_form_element = 'antispam_tpapikey';
-        if (empty($apikey)) {
-          form_set_error('antispam_tpapikey', t('You must enter an API key from the service provider to use AntiSpam module'));
-        }
-        break;
-      case DEFENSIO_SERVICE:
-        $apikey = $form_state['values']['antispam_deapikey'];
-        $apikey_form_element = 'antispam_deapikey';
-        break;
     }
-    if (empty($apikey)) {
-      form_set_error($apikey_form_element, t('You must enter an API key from the service provider to use AntiSpam module'));
-    }
-    if (antispam_api_cmd_verify_key($apikey, $service_provider) == ANTISPAM_API_RESULT_ERROR) {
-      form_set_error($apikey_form_element, t('The API key you entered is not valid. Check the email from the service provider and enter a valid API key'));
+    if (!empty($apikey)) {
+      if (antispam_api_cmd_verify_key($apikey, $service_provider) == ANTISPAM_API_RESULT_ERROR) {
+        form_set_error($apikey_form_element, t('The API key you entered is not valid.'));
+      }
+      else {
+        drupal_set_message(t('Your Akismet API key has been verified. Say goodbye to spam!'));
+      }
     }
   }
 }
@@ -54,9 +49,10 @@ function antispam_settings_form() {
   $service_provider = antispam_get_service_provider();
 
   // Provide the AntiSpam administration JavaScript.
-  drupal_add_js(drupal_get_path('module', 'antispam') .'/antispam.js');
+  drupal_add_js(drupal_get_path('module', 'antispam') . '/antispam.js');
 
-  $service_fieldset_collapsed = FALSE; // always show 
+  // Always show.
+  $service_fieldset_collapsed = FALSE;
 
   $form['service'] = array(
     '#type' => 'fieldset', '#title' => t('AntiSpam Service Options'),
@@ -67,11 +63,9 @@ function antispam_settings_form() {
     '#title' => t('Service Provider'),
     '#options' => array(
       t('Akismet'),
-      t('TypePad AntiSpam'),
-      t('Defensio'),
     ),
     '#default_value' => $service_provider,
-    '#description' => t('Please select the anti spam service provider. Although they provide the similar services, TypePad AntiSpam service is free even for commercial sites while Akismet and Defensio have some limitations on the commercial usage. Do not forget to enter an API key of the select service provider below.'),
+    '#description' => t('Akismet is currently the only available anti-spam provider. Do not forget to enter an API key below.'),
   );
   $form['service']['antispam_wpapikey'] = array(
     '#type' => 'textfield', '#title' => t('Akismet API key'),
@@ -86,34 +80,6 @@ function antispam_settings_form() {
       )
     ),
     '#prefix' => '<div id="antispam-wrapper-0" class="antispam-wrapper">',
-    '#suffix' => '</div>',
-  );
-  $form['service']['antispam_tpapikey'] = array(
-    '#type' => 'textfield', '#title' => t('TypePad AntiSpam API key'),
-    '#size' => 50, '#maxlength' => 90,
-    '#default_value' => $antispam_tpapikey,
-    '#description' => t('Please, enter here your <a href="!tpapikey">TypePad.com AntiSpam API key</a>. If you don\'t have one already, you can get it by simply signing up for a free account at <a href="!typepad-com">Typepad.com</a>. Once you get a free acount, visit the <a href="!tpapikey">TypePad AntiSpam Service</a> and get your free TypePad AntiSpam API Key there. Please, consult the <a href="!antispam-faq">TypePad AntiSpam FAQ</a> for further information.',
-      array(
-        '!tpapikey' => url('http://antispam.typepad.com/info/get-api-key.html'),
-        '!typepad-com' => url('http://typepad.com/connect/register'),
-        '!antispam-faq' => url('http://antispam.typepad.com/info/faq.html'),
-      )
-    ),
-    '#prefix' => '<div id="antispam-wrapper-1" class="antispam-wrapper">',
-    '#suffix' => '</div>',
-  );
-  $form['service']['antispam_deapikey'] = array(
-    '#type' => 'textfield', '#title' => t('Defensio API key'),
-    '#size' => 50, '#maxlength' => 90,
-    '#default_value' => $antispam_deapikey,
-    '#description' => t('Please, enter here your <a href="!defensio-com">Defensio API key</a>. If you don\'t have one already, you can get it by simply signing up for a free account at <a href="!defensio-key">Defensio.com</a>. Then you will get your API key to use <a href="!defensio-com">Defensio</a> antispam service. Please, consult the <a href="!antispam-faq">Defensio FAQ</a> for further information.',
-      array(
-        '!defensio-com' => url('http://defensio.com/'),
-        '!defensio-key' => url('http://defensio.com/signup/'),
-        '!antispam-faq' => url('http://defensio.com/faq'),
-      )
-    ),
-    '#prefix' => '<div id="antispam-wrapper-2" class="antispam-wrapper">',
     '#suffix' => '</div>',
   );
 
@@ -173,6 +139,15 @@ function antispam_settings_form() {
     '#default_value' => variable_get('antispam_email_enabled', 1),
     '#description' => t('Use this option to <em>enable</em> or <em>disable</em> e-mail notifications to content moderators. If enabled, users with proper permissions are allowed to set, from their user profiles, whether they wish to receive e-mail notications for all new (or updated) posts, just for content needing approval or no notifications at all. Users are notified about content types they are allowed to moderate only.')
   );
+  // Optional integration with Webform.
+  if (module_exists('webform')) {
+    $form['general']['antispam_webform_enabled'] = array(
+      '#type' => 'checkbox',
+      '#title' => 'Webform integration',
+      '#default_value' => variable_get('antispam_webform_enabled', FALSE),
+      '#description' => t('Optionally check all text values submitted as Webform fields.'),
+    );
+  }
 
   $form['node_options'] = array(
     '#type' => 'fieldset', '#title' => t('Node Options'),
@@ -199,15 +174,16 @@ function antispam_settings_form() {
       ))
   );
   $form['node_options']['antispam_node_spam_links'] = array(
-    '#type' => 'radios', '#title' => t('Show submit spam/ham links'),
+    '#type' => 'radios', '#title' => t('Show spam/not spam links'),
     '#options' => $enable_options,
     '#default_value' => variable_get('antispam_node_spam_links', 0),
-    '#description' => t('Use this option to <em>enable</em> or <em>disable</em> links for <em>submit spam</em>/<em>ham</em> operations in nodes. If enabled, these links will only be displayed to <a href="!admin-access">spam moderators</a> and users with <a href="!admin-access">@admin-nodes</a> permission.',
+    '#description' => t('Use this option to <em>enable</em> or <em>disable</em> links for marking nodes as spam or not spam. If enabled, these links will only be displayed to <a href="!admin-access">spam moderators</a> and users with <a href="!admin-access">@admin-nodes</a> permission.',
       array(
         '@admin-nodes' => t('administer nodes'),
         '!admin-access' => url('admin/access'),
       ))
-      .'<br />'. t('<strong>Note:</strong> To interact fully with the antispam service, you really should try putting data back into the system as well as just taking it out. If it is at all possible, please use these links to submit missed spam and false positives (ham), otherwise antispam service will never learn from its mistakes. Thank you.'),
+      . '<br />'
+      . t('<strong>Note:</strong> To interact fully with the antispam service, you really should try putting data back into the system as well as just taking it out. If it is at all possible, please use these links to submit missed spam and false positives (ham), otherwise antispam service will never learn from its mistakes. Thank you.'),
   );
 
   if (module_exists('comment')) {
@@ -236,15 +212,16 @@ function antispam_settings_form() {
         ))
     );
     $form['comment_options']['antispam_comment_spam_links'] = array(
-      '#type' => 'radios', '#title' => t('Show submit spam/ham links'),
+      '#type' => 'radios', '#title' => t('Show spam/not spam links'),
       '#options' => $enable_options,
       '#default_value' => variable_get('antispam_comment_spam_links', 1),
-      '#description' => t('Use this option to <em>enable</em> or <em>disable</em> links for <em>submit spam</em>/<em>ham</em> operations in comments. If enabled, these links will only be displayed to <a href="!admin-access">spam moderators</a> and users with <a href="!admin-access">@admin-comments</a> permission.',
+      '#description' => t('Use this option to <em>enable</em> or <em>disable</em> links for marking comments as spam or not spam. If enabled, these links will only be displayed to <a href="!admin-access">spam moderators</a> and users with <a href="!admin-access">@admin-comments</a> permission.',
         array(
           '@admin-comments' => t('administer comments'),
           '!admin-access' => url('admin/access'),
         ))
-        .'<br />'. t('<strong>Note:</strong> To interact fully with the selected antispam service, you really should try putting data back into the system as well as just taking it out. If it is at all possible, please use these links to submit missed spam and false positives (ham), otherwise the antispam service will never learn from its mistakes. Thank you.'),
+        . '<br />'
+        . t('<strong>Note:</strong> To interact fully with the selected antispam service, you really should try putting data back into the system as well as just taking it out. If it is at all possible, please use these links to submit missed spam and false positives (ham), otherwise the antispam service will never learn from its mistakes. Thank you.'),
     );
   }
 
@@ -368,7 +345,7 @@ function antispam_moderator_operations($mode, $submode) {
       )
     );
   }
-  else if ($mode == 'comments') {
+  elseif ($mode == 'comments') {
     $operations = array(
       'submit-spam' => array(
         'title' => (variable_get('antispam_connection_enabled', 1) ? t('Submit selected comments as spam') : t('Mark selected comments as spam')),
@@ -406,10 +383,10 @@ function antispam_moderator_operations($mode, $submode) {
   if ($submode == 'spam') {
     unset($operations['submit-spam']);
   }
-  else if ($submode == 'unpublished') {
+  elseif ($submode == 'unpublished') {
     unset($operations['unpublish']);
   }
-  else if ($submode == 'published') {
+  elseif ($submode == 'published') {
     unset($operations['publish']);
   }
   else { // Unknown submode!
@@ -426,54 +403,65 @@ function antispam_generate_statistics_graph() {
   /**
    * Chart 1: Element Ratio Pie Chart
    */
-  // get sum
+  // Get sum.
   $counts = antispam_get_total_counter();
-  // construct URL for Google Chart API
+  // Construct URL for Google Chart API.
   $total = $counts['total_spam'] + $counts['total_ham'];
   $counts['total_spam'] -= $counts['total_fpositive'];
   $counts['total_ham'] -= $counts['total_fnegative'];
   $chart_width = variable_get('antispam_chart_width', 480);
-  $output = '<p><img src="http://chart.apis.google.com/chart?'
-            . 'chtt=' . t('Total Statistics')
-            . '&cht=p'  // char type: line chart
-            . '&chs=' . $chart_width . 'x' . ($chart_width / 2) // chart size
-            . '&chds=0,' . $total
-            . '&chl=' . t('Spam') . '|' . t('Ham') .'|'
-              . t('False Negative') . '|' . t('False Positive') // legend
-            . '&chd=t:' . $counts['total_spam'] . ',' . $counts['total_ham'] . ','
-              . $counts['total_fnegative'] . ',' . $counts['total_fpositive']
-            . '&chco=dd6666,ffdd33,444444,bbbbbb' // line colors
-            . '" alt="Total Statistics Chart" class="antispam-chart" /></p>' . "\n";
+  $output = '<p><img src="http://chart.apis.google.com/chart?';
+  $output .= 'chtt=' . t('Total Statistics');
+  // Char type: line chart.
+  $output .= '&cht=p';
+  // Chart size.
+  $output .= '&chs=' . $chart_width . 'x' . ($chart_width / 2);
+  $output .= '&chds=0,' . $total;
+  $output .= '&chl=' . t('Spam') . '|' . t('Ham') . '|';
+  // Legend.
+  $output .= t('False Negative') . '|' . t('False Positive');
+  $output .= '&chd=t:' . $counts['total_spam'] . ',' . $counts['total_ham'] . ',';
+  $output .= $counts['total_fnegative'] . ',' . $counts['total_fpositive'];
+  // Line colors.
+  $output .= '&chco=dd6666,ffdd33,444444,bbbbbb';
+  $output .= '" alt="Total Statistics Chart" class="antispam-chart" /></p>' . "\n";
 
   /**
    * Chart 2: Daily Statistics Line Chart (max 1 year)
    */
-  // get max
+  // Get max.
   $max_counts = antispam_get_max_counter();
   $y_max = max($max_counts['max_spam'], $max_counts['max_ham']) + 1;
 
-
-  // get oldest and latest date within the range
-  $rec = db_query("SELECT MIN(date) AS oldest, MAX(date) AS latest FROM {antispam_counter} ORDER BY date DESC LIMIT 365")->fetchObject();
+  // Get oldest and latest date within the range.
+  $rec = db_query_range("SELECT MIN(date) AS oldest, MAX(date) AS latest FROM {antispam_counter} ORDER BY date DESC", 0, 365)->fetchObject();
   $oldest = $rec ? date('M-d', strtotime($rec->oldest)) : '';
   $latest = $rec ? date('M-d', strtotime($rec->latest)) : date('M-d');
 
-  // construct URL for Google Chart API
-  $output .= '<p><img src="http://chart.apis.google.com/chart?'
-            . 'chtt=' . t('Daily Statistics')
-            . '&cht=lc' // char type: line chart
-            . '&chs=' . $chart_width . 'x' . (int)($chart_width *2 / 3) // chart size
-            . '&chdl=' . t('Spam') . '|' . t('Ham') // legend
-            . '&chdlp=t' // legend at top
-            . '&chxt=x,y' // axis
-            . '&chxl=0:|' . $latest . '|' . $oldest // x-axis label
-            . '&chxr=0,0,365|1,0,' . $y_max // x-axis, y-axis range
-            . '&chds=0,' . $y_max
-            . '&chco=dd6666,ffdd33' // line colors
-            . '&chd=t:';
+  // Construct URL for Google Chart API.
+  $output .= '<p><img src="http://chart.apis.google.com/chart?';
+  $output .= 'chtt=' . t('Daily Statistics');
+  // Char type: line chart.
+  $output .= '&cht=lc';
+  // Chart size.
+  $output .= '&chs=' . $chart_width . 'x' . (int)($chart_width * 2 / 3);
+  // Legend.
+  $output .= '&chdl=' . t('Spam') . '|' . t('Ham');
+  // Legend at top.
+  $output .= '&chdlp=t';
+  // Axis.
+  $output .= '&chxt=x,y';
+  // X-axis label.
+  $output .= '&chxl=0:|' . $latest . '|' . $oldest;
+  // X-axis, y-axis range.
+  $output .= '&chxr=0,0,365|1,0,' . $y_max;
+  $output .= '&chds=0,' . $y_max;
+  // Line colors.
+  $output .= '&chco=dd6666,ffdd33';
+  $output .= '&chd=t:';
   $spam = $ham = array();
-  // max 1 year
-  $result = db_query("SELECT * FROM {antispam_counter} ORDER BY date DESC LIMIT 365");
+  // Max 1 year.
+  $result = db_query_range("SELECT * FROM {antispam_counter} ORDER BY date DESC", 0, 365);
   foreach ($result as $rec) {
     $spam[] = $rec->spam_detected;
     $ham[] = $rec->ham_detected;
@@ -481,11 +469,13 @@ function antispam_generate_statistics_graph() {
   foreach ($spam as $spam_count) {
     $output .= $spam_count . ',';
   }
-  $output = rtrim($output, ','); // drop trailing comma
+  // Drop trailing comma.
+  $output = rtrim($output, ',');
   foreach ($ham as $ham_count) {
     $output .= $ham_count . ',';
   }
-  $output = rtrim($output, ','); // drop trailing comma
+  // Drop trailing comma.
+  $output = rtrim($output, ',');
   $output .= '" alt="Daily Statistics Chart" class="antispam-chart" /></p>' . "\n";
 
   return $output;
@@ -494,8 +484,10 @@ function antispam_generate_statistics_graph() {
 /**
  * Menu callback; Moderation queue.
  *
- * @param string Mode: overview (default), nodes, comments, statistics
- * @param string Submode: spam (default), unpublished, published.
+ * @param string mode
+ *   'overview' (default), 'nodes', 'comments', 'statistics'.
+ * @param string submode
+ *   'spam' (default), 'unpublished', 'published'.
  */
 function antispam_callback_queue($mode = '', $submode = '') {
   // Make sure we're dealing with a valid mode and submode.
@@ -508,14 +500,14 @@ function antispam_callback_queue($mode = '', $submode = '') {
   if (empty($mode)) {
     $mode = 'overview';
   }
-  else if (!in_array($mode, $valid_modes)) {
+  elseif (!in_array($mode, $valid_modes)) {
     drupal_not_found();
     return;
   }
   if (empty($submode)) {
     $submode = 'spam';
   }
-  else if (!isset($valid_submodes[$submode])) {
+  elseif (!isset($valid_submodes[$submode])) {
     drupal_not_found();
     return;
   }
@@ -530,7 +522,8 @@ function antispam_callback_queue($mode = '', $submode = '') {
   }
   $allowed_nodes_count = count($allowed_nodes);
 
-  // Make sure the user has some kind of content administration/moderation permission.
+  // Make sure the user has some kind of content administration/moderation
+  // permission.
   if ($allowed_nodes_count <= 0 && !$allowed_comments) {
     drupal_access_denied();
     return;
@@ -539,7 +532,7 @@ function antispam_callback_queue($mode = '', $submode = '') {
   // Present the overview page (default).
   if ($mode == 'overview') {
     $items = array();
-    //------ node ------
+    // ------ node ------
     if ($allowed_nodes_count > 0) {
       $subitems = array();
       foreach ($valid_submodes as $key => $title) {
@@ -549,10 +542,10 @@ function antispam_callback_queue($mode = '', $submode = '') {
         if ($key == 'spam') {
           $query->isNotNull('s.content_id');            
         }
-        else if ($key == 'unpublished') {
+        elseif ($key == 'unpublished') {
           $query->condition('n.status', NODE_NOT_PUBLISHED);
         }
-        else if ($key == 'published') {
+        elseif ($key == 'published') {
           $query->condition('n.status', NODE_PUBLISHED);
         }
         $query->addTag('node_access');
@@ -561,13 +554,13 @@ function antispam_callback_queue($mode = '', $submode = '') {
         $sql_cnt = str_replace('%cond', $sql_nodes_cond[$key], $sql_nodes_cnt);
         $count = db_query(db_rewrite_sql($sql_cnt))->fetchField();
 */
-        $path = 'admin/content/antispam/nodes'. ($key == 'spam' ? '' : '/'. $key);
+        $path = 'admin/content/antispam/nodes' . ($key == 'spam' ? '' : '/' . $key);
         $label = ($count > 0 ? l($title, $path) : $title);
-        $subitems[] = '<p><strong>'. $label .': '. $count .'</strong></p>';
+        $subitems[] = '<p><strong>' . $label . ': ' . $count . '</strong></p>';
       }
-      $items[] = '<h4>'. t('Nodes') .'</h4>'. theme('item_list', array('items' => $subitems));
+      $items[] = '<h4>' . t('Nodes') . '</h4>' . theme('item_list', array('items' => $subitems));
     }
-    //------ comment ------
+    // ------ comment ------
     if ($allowed_comments) {
       $subitems = array();
       foreach ($valid_submodes as $key => $title) {
@@ -577,19 +570,19 @@ function antispam_callback_queue($mode = '', $submode = '') {
         if ($key == 'spam') {
           $query->isNotNull('s.content_id');            
         }
-        else if ($key == 'unpublished') {
+        elseif ($key == 'unpublished') {
           $query->condition('c.status', 0);
         }
-        else if ($key == 'published') {
+        elseif ($key == 'published') {
           $query->condition('c.status', 1);
         }
         $query->addTag('node_access');
         $count = $query->countQuery()->execute()->fetchField();
-        $path = 'admin/content/antispam/comments'. ($key == 'spam' ? '' : '/'. $key);
+        $path = 'admin/content/antispam/comments' . ($key == 'spam' ? '' : '/' . $key);
         $label = ($count > 0 ? l($title, $path) : $title);
-        $subitems[] = '<p><strong>'. $label .': '. $count .'</strong></p>';
+        $subitems[] = '<p><strong>' . $label . ': ' . $count . '</strong></p>';
       }
-      $items[] = '<h4>'. t('Comments') .'</h4>'. theme('item_list', array('items' => $subitems));
+      $items[] = '<h4>' . t('Comments') . '</h4>' . theme('item_list', array('items' => $subitems));
     }
     return '<h3>' . t('Summary of content:') . '</h3>' . theme('item_list', array('items' => $items));
   }
@@ -598,7 +591,8 @@ function antispam_callback_queue($mode = '', $submode = '') {
     $items = array();
     $provider_name = antispam_get_provider_name(antispam_get_service_provider(), TRUE);
     $items[] = $provider_name;
-    $output = '<h3>' . t('Current Service Provider') . '</h3>' . theme('item_list', array('items' => $items)) . '<br />';
+    $output = '<h3>' . t('Current Service Provider') . '</h3>';
+    $output .= theme('item_list', array('items' => $items)) . '<br />';
     
     $items = array();
     $counts = antispam_get_total_counter();
@@ -618,9 +612,9 @@ function antispam_callback_queue($mode = '', $submode = '') {
     $items[] = '<p><strong>' . t('Accuracy: !accuracy %', array('!accuracy' => $accuracy)) . '</strong></p>';
     $output .= '<h3>' . t('Statistics since @since (!days)', 
       array('@since' => antispam_get_counting_since(), '!days' => format_plural($days, '1 day', '@count days'))) . '</h3>' . theme('item_list', array('items' => $items));
-    // generate graph using Google Chart API
+    // Generate graph using Google Chart API.
     $output .= antispam_generate_statistics_graph();
-    // footnotes
+    // Footnotes.
     $output .= '<p><br /><i>' . t('Note: <strong>False negatives</strong> is the number of spams that were incorrectly tagged as hams, while <strong>false positives</strong> is the number of hams that were incorrectly tagged as spams. These numbers totally depends on your manual operation to retrain the antispam service using <strong>submit as spam</strong> and <strong>submit as ham</strong> feature.') . '</i></p>';
     $output .= '<p><i>' . t('Note: <strong>Accuracy</strong> is calculated by the following formula:<br /> accuracy(%) = 100 - (((false negative + false positive) / total checked) * 100)') . '</i></p>';
    
@@ -635,8 +629,11 @@ function antispam_callback_queue($mode = '', $submode = '') {
   }
 }
 
+/**
+ * @param $spaminess float
+ *   Value between (0 to 1) or null.
+ */
 function _antispam_spaminess_bar($spaminess) {
-  // $spaminess - float value between (0 to 1) or null
   if (empty($spaminess)) {
     return;
   }
@@ -644,10 +641,10 @@ function _antispam_spaminess_bar($spaminess) {
     $ispaminess = (int)($spaminess * 100);
   }
   $output  = '<div style="width:100px; background-color: #eee;">';
-  $output .= '<div style="width:' . $ispaminess . 'px; color: #000; background: url('
-              . base_path() . drupal_get_path('module', 'antispam') 
-              . '/spaminess.jpg) center left; padding:0px 2px; font-size: 9px">' 
-              . $spaminess;
+  $output .= '<div style="width:' . $ispaminess . 'px; color: #000; background: url(';
+  $output .= base_path() . drupal_get_path('module', 'antispam');
+  $output .= '/spaminess.jpg) center left; padding:0px 2px; font-size: 9px">';
+  $output .= $spaminess;
   $output .= '</div></div>';
   return $output;
 }
@@ -659,15 +656,15 @@ function antispam_get_submode_menu($mode, $submode) {
   if ($submode == 'spam') {
     $spam_li = '<li class="active">'; 
   }
-  else if ($submode == 'unpublished') {
+  elseif ($submode == 'unpublished') {
     $unpublished_li = '<li class="active">'; 
   }
-  else if ($submode == 'published') {
+  elseif ($submode == 'published') {
     $published_li = '<li class="active">'; 
   }
-  $out .= $spam_li . l(t('Spam'), 'admin/content/antispam/'.$mode.'/spam') . '</li>';
-  $out .= $unpublished_li . l(t('Unpublished'), 'admin/content/antispam/'.$mode.'/unpublished') . '</li>';
-  $out .= $published_li . l(t('Published'), 'admin/content/antispam/'.$mode.'/published') . '</li>';
+  $out .= $spam_li . l(t('Spam'), 'admin/content/antispam/' . $mode . '/spam') . '</li>';
+  $out .= $unpublished_li . l(t('Unpublished'), 'admin/content/antispam/' . $mode . '/unpublished') . '</li>';
+  $out .= $published_li . l(t('Published'), 'admin/content/antispam/' . $mode . '/published') . '</li>';
   $out .= '</ul></div>';
   return $out;
 }
@@ -704,8 +701,8 @@ function antispam_moderation_form($form, &$form_state, $mode = '', $submode = ''
     '#default_value' => '');
   $form['options']['submit'] = array('#type' => 'submit', '#value' => t('Moderate'));
 
+  // Nodes.
   if ($mode == 'nodes') {
-
     $allowed_nodes = antispam_get_moderator_types();
     if (isset($allowed_nodes['comments'])) {
       unset($allowed_nodes['comments']);
@@ -728,37 +725,24 @@ function antispam_moderation_form($form, &$form_state, $mode = '', $submode = ''
     if ($submode == 'spam') {
       $query->isNotNull('s.content_id');            
     }
-    else if ($submode == 'unpublished') {
+    elseif ($submode == 'unpublished') {
       $query->condition('n.status', 0);
     }
-    else if ($submode == 'published') {
+    elseif ($submode == 'published') {
       $query->condition('n.status', 1);
     }
-    if (antispam_get_service_provider() == DEFENSIO_SERVICE) {
-      $form['header'] = array('#type' => 'value', '#value' => array(
-        // theme('table_select_header_cell'),
-        array('class' => 'select-all'),
-        array('data' => t('Title'), 'field' => 'title'),
-        array('data' => t('Type'), 'field' => 'type'),
-        array('data' => t('Author'), 'field' => 'name'),
-        array('data' => t('Status'), 'field' => 'status'),
-        array('data' => t('Spaminess'), 'field' => 'spaminess', 'sort' => 'desc'),
-        array('data' => t('Last changed'), 'field' => 'changed', 'sort' => 'desc')
-      ));
-    }
-    else {
-      $form['header'] = array('#type' => 'value', '#value' => array(
-        // theme('table_select_header_cell'),
-        array('class' => 'select-all'),
-        array('data' => t('Title'), 'field' => 'title'),
-        array('data' => t('Type'), 'field' => 'type'),
-        array('data' => t('Author'), 'field' => 'name'),
-        array('data' => t('Status'), 'field' => 'status'),
-        array('data' => t('Last changed'), 'field' => 'changed', 'sort' => 'desc')
-      ));
-    }
+    $form['header'] = array('#type' => 'value', '#value' => array(
+      // theme('table_select_header_cell'),
+      array('class' => 'select-all'),
+      array('data' => t('Title'), 'field' => 'title'),
+      array('data' => t('Type'), 'field' => 'type'),
+      array('data' => t('Author'), 'field' => 'name'),
+      array('data' => t('Status'), 'field' => 'status'),
+      array('data' => t('Last changed'), 'field' => 'changed', 'sort' => 'desc')
+    ));
   }
-  else { // comments
+  // Comments.
+  else {
     $query = db_select('comment', 'c');
     $query->join('users', 'u', 'u.uid = c.uid');
     $query->join('field_data_comment_body', 'e', 'e.entity_id = c.cid');
@@ -771,33 +755,20 @@ function antispam_moderation_form($form, &$form_state, $mode = '', $submode = ''
     if ($submode == 'spam') {
       $query->isNotNull('s.content_id');            
     }
-    else if ($submode == 'unpublished') {
+    elseif ($submode == 'unpublished') {
       $query->condition('c.status', COMMENT_NOT_PUBLISHED);
     }
-    else if ($submode == 'published') {
+    elseif ($submode == 'published') {
       $query->condition('c.status', COMMENT_PUBLISHED);
     }
-    if (antispam_get_service_provider() == DEFENSIO_SERVICE) {
-      $form['header'] = array('#type' => 'value', '#value' => array(
-        // theme('table_select_header_cell'),
-        array('class' => 'select-all'),
-        array('data' => t('Subject'), 'field' => 'subject'),
-        array('data' => t('Author'), 'field' => 'name'),
-        array('data' => t('Status'), 'field' => 'status'),
-        array('data' => t('Spaminess'), 'field' => 'spaminess', 'sort' => 'desc'),
-        array('data' => t('Last changed'), 'field' => 'created', 'sort' => 'desc')
-      ));
-    }
-    else {
-      $form['header'] = array('#type' => 'value', '#value' => array(
-        // theme('table_select_header_cell'),
-        array('class' => 'select-all'),
-        array('data' => t('Subject'), 'field' => 'subject'),
-        array('data' => t('Author'), 'field' => 'name'),
-        array('data' => t('Status'), 'field' => 'status'),
-        array('data' => t('Last changed'), 'field' => 'created', 'sort' => 'desc')
-      ));
-    }
+    $form['header'] = array('#type' => 'value', '#value' => array(
+      // theme('table_select_header_cell'),
+      array('class' => 'select-all'),
+      array('data' => t('Subject'), 'field' => 'subject'),
+      array('data' => t('Author'), 'field' => 'name'),
+      array('data' => t('Status'), 'field' => 'status'),
+      array('data' => t('Last changed'), 'field' => 'created', 'sort' => 'desc')
+    ));
   }
 
   $records_per_page = variable_get('antispam_records_per_page', 50);
@@ -807,45 +778,43 @@ function antispam_moderation_form($form, &$form_state, $mode = '', $submode = ''
   $items = array();
   $now = time();
   foreach ($result as $content) {
+    // Nodes.
     if ($mode == 'nodes') {
       $items[$content->nid] = '';
       $content->name = $content->uid ? $content->registered_name : $content->name;
       $form['title'][$content->nid] = array(
-        '#value' => l($content->title, 'node/'. $content->nid, array(
+        '#value' => l($content->title, 'node/' . $content->nid, array(
           'attributes' => array(
-            'title' => truncate_utf8(render($content->body), BODY_TOOLTIP_LEN),
+            'title' => truncate_utf8(render($content->body), ANTISPAM_BODY_TOOLTIP_LEN),
           )
         )
-      ) .' '. theme('mark', array('type' => node_mark($content->nid, $content->changed))));
+      ) . ' ' . theme('mark', array('type' => node_mark($content->nid, $content->changed))));
       $form['type'][$content->nid] = array('#value' => node_type_get_name($content));
       $form['author'][$content->nid] = array('#value' => theme('username', array('account' => user_load($content->uid))));
       $form['status'][$content->nid] = array('#value' => ($content->status ? t('published') : t('not published')));
-      if(empty($content->spam_mark)) $content->spam_mark = 0;
+      if (empty($content->spam_mark)) {
+        $content->spam_mark = 0;
+      }
       if ($content->spam_mark) {
         $form['status'][$content->nid]['#value'] .= '/' . t('spam');
       }
-      if (antispam_get_service_provider() == DEFENSIO_SERVICE) {
-        $form['spaminess'][$content->nid] = array('#type' => 'item', '#markup' => _antispam_spaminess_bar($content->spaminess));
-      }
       $form['created'][$content->nid] = array('#value' => t('%time ago', array('%time' => format_interval($now - $content->changed))));
     }
-    else { // comments
+    // Comments.
+    else {
       $items[$content->cid] = '';
       $content->name = $content->uid ? $content->registered_name : $content->name;
       $form['title'][$content->cid] = array(
-        '#value' => l($content->subject, 'node/'. $content->nid, array(
+        '#value' => l($content->subject, 'node/' . $content->nid, array(
           'attributes' => array(
-            'title' => truncate_utf8(render($content->body), BODY_TOOLTIP_LEN)
+            'title' => truncate_utf8(render($content->body), ANTISPAM_BODY_TOOLTIP_LEN)
           ), 
           'fragment' => 'comment-' . $content->cid,
-         )) .' '. theme('mark', array('type' => node_mark($content->cid, $content->created))));
+         )) . ' ' . theme('mark', array('type' => node_mark($content->cid, $content->created))));
       $form['author'][$content->cid] = array('#value' => theme('username', array('account' => user_load($content->uid))));
       $form['status'][$content->cid] = array('#value' => ($content->status == COMMENT_PUBLISHED ? t('published') : t('not published')));
       if ($content->spam_mark) {
         $form['status'][$content->cid]['#value'] .= '/' . t('spam');
-      }
-      if (antispam_get_service_provider() == DEFENSIO_SERVICE) {
-        $form['spaminess'][$content->cid] = array('#type' => 'item', '#markup' => _antispam_spaminess_bar($content->spaminess));
       }
       $form['created'][$content->cid] = array('#value' => t('%time ago', array('%time' => format_interval($now - $content->created))));
     }
@@ -880,29 +849,21 @@ function theme_antispam_moderation_form($variables) {
       }
       $row[] = render($form['author'][$key]['#value']);
       $row[] = render($form['status'][$key]['#value']);
-      if (antispam_get_service_provider() == DEFENSIO_SERVICE) {
-        $row[] = render($form['spaminess'][$key]['#value']);
-      }
       $row[] = render($form['created'][$key]['#value']);
       $rows[] = $row;
     }
   }
   else {
     if ($submode == 'spam') {
-      $message = ($mode == 'nodes' ? t('There is no spam in the nodes moderation queue.') : t('There is no spam in the comments moderation queue.')) .'<br />'. t('It must be your lucky day! ;-)');
+      $message = ($mode == 'nodes' ? t('There is no spam in the nodes moderation queue.') : t('There is no spam in the comments moderation queue.')) . '<br />' . t('It must be your lucky day! ;-)');
     }
-    else if ($submode == 'unpublished') {
+    elseif ($submode == 'unpublished') {
       $message = ($mode == 'nodes' ? t('There are no unpublished nodes in the moderation queue.') : t('There are no unpublished comments in the moderation queue.'));
     }
     else { // published
       $message = ($mode == 'nodes' ? t('There are no published nodes.') : t('There are no published comments.'));
     }
-    if (antispam_get_service_provider() == DEFENSIO_SERVICE) {
-      $rows[] = array(array('data' => $message, 'align' => 'center', 'colspan' => ($mode == 'nodes' ? '7' : '6')));
-    }
-    else {
-      $rows[] = array(array('data' => $message, 'align' => 'center', 'colspan' => ($mode == 'nodes' ? '6' : '5')));
-    }
+    $rows[] = array(array('data' => $message, 'align' => 'center', 'colspan' => ($mode == 'nodes' ? '6' : '5')));
   }
   $output .= theme('table', array('header' => $form['header']['#value'], 'rows' => $rows));
   $output .= render($form['pager']['#value']);
@@ -946,9 +907,9 @@ function antispam_confirm_multiple_operation($form, &$form_state, $mode = '', $s
     return;
   }
 
-  $confirm_message = '<strong>'. $valid_operations[$operation]['confirm'] .'</strong>';
+  $confirm_message = '<strong>' . $valid_operations[$operation]['confirm'] . '</strong>';
   $confirm_button = $valid_operations[$operation]['button'];
-  $confirm_warning = '<p>'. (isset($valid_operations[$operation]['warning']) ? $valid_operations[$operation]['warning'] : '') .'</p>';
+  $confirm_warning = '<p>' . (isset($valid_operations[$operation]['warning']) ? $valid_operations[$operation]['warning'] : '') . '</p>';
   $content_type = ($mode == 'nodes' ? 'node' : 'comment');
 
   $form = array();
@@ -956,8 +917,13 @@ function antispam_confirm_multiple_operation($form, &$form_state, $mode = '', $s
   // array_filter() returns only elements with actual values
   foreach (array_filter($edit['items']) as $content_id => $value) {
     if ($content = antispam_content_load($content_type, $content_id)) {
-      $title = '&quot;'. check_plain($content_type == 'node' ? $content->title : $content->subject) .'&quot;, '. t('by') .' '. theme('username', array('account' => user_load($content->uid)));
-      $form['items'][$content_id] = array('#type' => 'hidden', '#value' => $content_id, '#prefix' => '<li>', '#suffix' => $title .'</li>');
+      $title = '&quot;' . check_plain($content_type == 'node' ? $content->title : $content->subject) . '&quot;, ' . t('by') . ' ' . theme('username', array('account' => user_load($content->uid)));
+      $form['items'][$content_id] = array(
+        '#type' => 'hidden',
+        '#value' => $content_id,
+        '#prefix' => '<li>',
+        '#suffix' => $title . '</li>',
+      );
     }
   }
   $form['mode'] = array('#type' => 'hidden', '#value' => $mode);
@@ -967,9 +933,9 @@ function antispam_confirm_multiple_operation($form, &$form_state, $mode = '', $s
   // Redirect to a non-existent menu item to make tabs disappear.
   menu_set_active_item('');
 
-  $path = 'admin/content/antispam/'. $mode;
+  $path = 'admin/content/antispam/' . $mode;
   if ($submode != 'spam') {
-    $path .= '/'. $submode;
+    $path .= '/' . $submode;
   }
   return confirm_form($form, $confirm_message, $path, $confirm_warning, $confirm_button, t('Cancel'));
 }
@@ -996,11 +962,13 @@ function antispam_confirm_multiple_operation_submit($form, &$form_state) {
         antispam_content_delete($content_type, $content_id);
         $message = ($mode == 'nodes' ? t('The nodes have been deleted.') : t('The comments have been deleted.'));
       }
-      else if ($content = antispam_content_load($content_type, $content_id)) {
+      elseif ($content = antispam_content_load($content_type, $content_id)) {
+        // Node.
         if ($content_type == 'node') {
           $is_published = ($content->status ? TRUE : FALSE);
         }
-        else { // comment
+        // Comment.
+        else {
           $is_published = ($content->status == COMMENT_PUBLISHED ? TRUE : FALSE);
         }
         $is_spam = antispam_content_is_spam($content_type, $content_id);
@@ -1009,7 +977,7 @@ function antispam_confirm_multiple_operation_submit($form, &$form_state) {
           antispam_content_spam_operation($content_type, $content, 'submit-spam', TRUE);
           antispam_increase_counter(ANTISPAM_COUNT_FALSE_NEGATIVE);
         }
-        else if ($operation == 'submit-ham' && $is_spam) {
+        elseif ($operation == 'submit-ham' && $is_spam) {
           antispam_content_spam_operation($content_type, $content, 'submit-ham', TRUE);
           antispam_increase_counter(ANTISPAM_COUNT_FALSE_POSITIVE);
         }
@@ -1017,7 +985,7 @@ function antispam_confirm_multiple_operation_submit($form, &$form_state) {
         if (in_array($operation, array('unpublish', 'submit-spam')) && $is_published) {
           antispam_content_publish_operation($content_type, $content, 'unpublish');
         }
-        else if (in_array($operation, array('publish', 'submit-ham')) && !$is_published) {
+        elseif (in_array($operation, array('publish', 'submit-ham')) && !$is_published) {
           antispam_content_publish_operation($content_type, $content, 'publish');
         }
 
@@ -1027,9 +995,9 @@ function antispam_confirm_multiple_operation_submit($form, &$form_state) {
     drupal_set_message($message);
   }
 
-  $form_state['redirect'] = 'admin/content/antispam/'. $mode;
+  $form_state['redirect'] = 'admin/content/antispam/' . $mode;
   if ($submode != 'spam') {
-    $form_state['redirect'] .= '/'. $submode;
+    $form_state['redirect'] .= '/' . $submode;
   }
   return;
 }

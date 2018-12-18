@@ -61,23 +61,25 @@ define('PATHAUTO_PUNCTUATION_DO_NOTHING', 2);
  *   A string that is the internal path.
  * @param $langcode
  *   A string indicating the path's language.
- * @return
+ *
+ * @return bool
  *   TRUE if an alias exists, FALSE if not.
  *
  * @deprecated Use path_pathauto_is_alias_reserved() instead.
  */
 function _pathauto_alias_exists($alias, $source, $langcode = LANGUAGE_NONE) {
-  return path_pathauto_is_alias_reserved();
+  return path_pathauto_is_alias_reserved($alias, $source, $langcode);
 }
 
 /**
  * Fetches an existing URL alias given a path and optional language.
  *
- * @param $source
+ * @param string $source
  *   An internal Drupal path.
- * @param $language
+ * @param string $language
  *   An optional language code to look up the path in.
- * @return
+ *
+ * @return bool|array
  *   FALSE if no alias was found or an associative array containing the
  *   following keys:
  *   - pid: Unique path alias identifier.
@@ -106,14 +108,14 @@ function _pathauto_existing_alias_data($source, $language = LANGUAGE_NONE) {
  * This function should *not* be called on URL alias or path strings because it
  * is assumed that they are already clean.
  *
- * @param $string
+ * @param string $string
  *   A string to clean.
  * @param array $options
  *   (optional) A keyed array of settings and flags to control the Pathauto
  *   clean string replacement process. Supported options are:
  *   - langcode: A language code to be used when translating strings.
  *
- * @return
+ * @return string
  *   The cleaned string.
  */
 function pathauto_cleanstring($string, array $options = array()) {
@@ -161,6 +163,7 @@ function pathauto_cleanstring($string, array $options = array()) {
     if ($ignore_words_regex) {
       $cache['ignore_words_regex'] = '\b' . $ignore_words_regex . '\b';
       if (function_exists('mb_eregi_replace')) {
+        mb_regex_encoding('UTF-8');
         $cache['ignore_words_callback'] = 'mb_eregi_replace';
       }
       else {
@@ -170,7 +173,7 @@ function pathauto_cleanstring($string, array $options = array()) {
     }
   }
 
-  // Empty strings do not need any proccessing.
+  // Empty strings do not need any processing.
   if ($string === '' || $string === NULL) {
     return '';
   }
@@ -239,11 +242,12 @@ function pathauto_cleanstring($string, array $options = array()) {
 /**
  * Trims duplicate, leading, and trailing separators from a string.
  *
- * @param $string
+ * @param string $string
  *   The string to clean path separators from.
- * @param $separator
+ * @param string $separator
  *   The path separator to use when cleaning.
- * @return
+ *
+ * @return string
  *   The cleaned version of the string.
  *
  * @see pathauto_cleanstring()
@@ -288,9 +292,10 @@ function _pathauto_clean_separators($string, $separator = NULL) {
  * - Trim duplicate, leading, and trailing separators.
  * - Shorten to a desired length and logical position based on word boundaries.
  *
- * @param $alias
+ * @param string $alias
  *   A string with the URL alias to clean up.
- * @return
+ *
+ * @return string
  *   The cleaned URL alias.
  */
 function pathauto_clean_alias($alias) {
@@ -341,8 +346,10 @@ function pathauto_clean_alias($alias) {
  *   (e.g., $node->type).
  * @param $language
  *   A string specify the path's language.
- * @return
- *   The alias that was created.
+ *
+ * @return array|null|false
+ *   The alias array that was created, NULL if an empty alias was generated, or
+ *   FALSE if the alias generation was not possible.
  *
  * @see _pathauto_set_alias()
  * @see token_replace()
@@ -364,18 +371,18 @@ function pathauto_create_alias($module, $op, $source, $data, $type = NULL, $lang
 
   if (empty($pattern)) {
     // No pattern? Do nothing (otherwise we may blow away existing aliases...)
-    return '';
+    return FALSE;
   }
 
   // Special handling when updating an item which is already aliased.
   $existing_alias = NULL;
-  if ($op == 'update' || $op == 'bulkupdate') {
+  if ($op != 'insert') {
     if ($existing_alias = _pathauto_existing_alias_data($source, $language)) {
       switch (variable_get('pathauto_update_action', PATHAUTO_UPDATE_ACTION_DELETE)) {
         case PATHAUTO_UPDATE_ACTION_NO_NEW:
           // If an alias already exists, and the update action is set to do nothing,
           // then gosh-darn it, do nothing.
-          return '';
+          return FALSE;
       }
     }
   }
@@ -394,7 +401,7 @@ function pathauto_create_alias($module, $op, $source, $data, $type = NULL, $lang
   // @see token_scan()
   $pattern_tokens_removed = preg_replace('/\[[^\s\]:]*:[^\s\]]*\]/', '', $pattern);
   if ($alias === $pattern_tokens_removed) {
-    return '';
+    return;
   }
 
   $alias = pathauto_clean_alias($alias);
@@ -406,7 +413,7 @@ function pathauto_create_alias($module, $op, $source, $data, $type = NULL, $lang
 
   // If we have arrived at an empty string, discontinue.
   if (!drupal_strlen($alias)) {
-    return '';
+    return;
   }
 
   // If the alias already exists, generate a new, hopefully unique, variant.
@@ -463,7 +470,7 @@ function pathauto_alias_uniquify(&$alias, $source, $langcode) {
   do {
     // Append an incrementing numeric suffix until we find a unique alias.
     $unique_suffix = $separator . $i;
-    $alias = truncate_utf8($original_alias, $maxlength - drupal_strlen($unique_suffix, TRUE)) . $unique_suffix;
+    $alias = truncate_utf8($original_alias, $maxlength - drupal_strlen($unique_suffix), TRUE) . $unique_suffix;
     $i++;
   } while (pathauto_is_alias_reserved($alias, $source, $langcode));
 }
@@ -516,7 +523,7 @@ function _pathauto_path_is_callback($path) {
  *   An optional string with the operation being performed.
  *
  * @return
- *   The saved path from path_save() or NULL if the path was not saved.
+ *   The saved path from path_save() or FALSE if the path was not saved.
  *
  * @see path_save()
  */
@@ -528,7 +535,7 @@ function _pathauto_set_alias(array $path, $existing_alias = NULL, $op = NULL) {
     if ($verbose) {
       _pathauto_verbose(t('Ignoring alias %alias because it is the same as the internal path.', array('%alias' => $path['alias'])));
     }
-    return;
+    return FALSE;
   }
 
   // Skip replacing the current alias with an identical alias
@@ -540,7 +547,7 @@ function _pathauto_set_alias(array $path, $existing_alias = NULL, $op = NULL) {
       switch (variable_get('pathauto_update_action', PATHAUTO_UPDATE_ACTION_DELETE)) {
         case PATHAUTO_UPDATE_ACTION_NO_NEW:
           // Do not create the alias.
-          return;
+          return FALSE;
         case PATHAUTO_UPDATE_ACTION_LEAVE:
           // Create a new alias instead of overwriting the existing by leaving
           // $path['pid'] empty.

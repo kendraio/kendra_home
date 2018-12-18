@@ -6,6 +6,13 @@
  */
 
 /**
+ * Implements hook_uninstall().
+ */
+function filter_html_image_secure_uninstall() {
+  variable_del('filter_html_image_secure_domains');
+}
+
+/**
  * Implements hook_update_dependencies().
  */
 function filter_html_image_secure_update_dependencies() {

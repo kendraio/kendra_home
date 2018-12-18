@@ -125,11 +125,11 @@ function relation_formatter_entity_field_formatter_view($entity_type, $entity, $
   $entities = array_filter($entities);
   switch ($display['type']) {
     case 'relation_rendered':
-      $element[$delta] = array(
-        '#type' => 'container',
-        '#attributes' => array(),
-      );
       foreach ($entities as $delta => $delta_entities) {
+        $element[$delta] = array(
+          '#type' => 'container',
+          '#attributes' => array(),
+        );
         foreach ($delta_entities as $entity_type => $ids) {
           $entity_view_mode = isset($display['settings'][$entity_type]['view_mode']) ? $display['settings'][$entity_type]['view_mode'] : $display['settings']['view_mode'];
           $element[$delta][$entity_type] = array(

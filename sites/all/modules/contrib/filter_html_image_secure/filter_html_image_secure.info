@@ -6,9 +6,9 @@ php = 5.2.4
 dependencies[] = filter
 files[] = tests/filter_html_image_secure.test
 
-; Information added by drupal.org packaging script on 2013-09-30
-version = "7.x-1.0+0-dev"
+; Information added by Drupal.org packaging script on 2016-05-01
+version = "7.x-1.1-beta1+3-dev"
 core = "7.x"
 project = "filter_html_image_secure"
-datestamp = "1380579335"
+datestamp = "1462112645"
 

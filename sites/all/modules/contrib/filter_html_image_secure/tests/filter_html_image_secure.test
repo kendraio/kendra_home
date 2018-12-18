@@ -67,6 +67,12 @@ class FilterHtmlImageSecureWebTestCase extends DrupalWebTestCase {
     $test_images = $this->drupalGetTestFiles('image');
     $test_image = $test_images[0]->filename;
 
+    // Put a test image in the files directory with special filename.
+    $special_filename = 'tést fïle nàme.png';
+    $special_image = rawurlencode($special_filename);
+    $special_uri = str_replace($test_images[0]->filename, $special_filename, $test_images[0]->uri);
+    file_unmanaged_copy($test_images[0]->uri, $special_uri);
+
     // keys become the value of img src, value is what the filter should convert them to.
     $images = array(
       $http_base_url . '/' . $druplicon => base_path() . $druplicon,
@@ -75,6 +81,8 @@ class FilterHtmlImageSecureWebTestCase extends DrupalWebTestCase {
       $files_path . '/' . $test_image => $files_path . '/' . $test_image,
       $http_base_url . '/' . $public_files_path . '/' . $test_image => $files_path . '/' . $test_image,
       $https_base_url . '/' . $public_files_path . '/' . $test_image => $files_path . '/' . $test_image,
+      $http_base_url . '/' . $public_files_path . '/' . $special_image => $files_path . '/' . $special_image,
+      $https_base_url . '/' . $public_files_path . '/' . $special_image => $files_path . '/' . $special_image,
       $files_path . '/example.png' => $red_x_image,
       'http://example.com/' . $druplicon => $red_x_image,
       'https://example.com/' . $druplicon => $red_x_image,
@@ -85,7 +93,7 @@ class FilterHtmlImageSecureWebTestCase extends DrupalWebTestCase {
     foreach ($images as $image => $converted) {
       // Hash image for the test attribute because it might contain characters
       // confusing xpath.
-      $comment[] = '<img src="' . $image . '" testattribute="' . md5($image) . '" />';
+      $comment[] = '<img src="' . $image . '" testattribute="' . hash('sha256', $image) . '" />';
     }
     $edit = array(
       'comment_body[und][0][value]' => implode("\n", $comment),
@@ -93,12 +101,15 @@ class FilterHtmlImageSecureWebTestCase extends DrupalWebTestCase {
     $this->drupalPost('node/' . $this->node->nid, $edit, t('Save'));
     foreach ($images as $image => $converted) {
       $found = FALSE;
-      foreach ($this->xpath('//img[@testattribute="' . md5($image) . '"]') as $element) {
+      foreach ($this->xpath('//img[@testattribute="' . hash('sha256', $image) . '"]') as $element) {
         $found = TRUE;
         if ($converted == $red_x_image) {
+          $this->assertEqual((string) $element['data-orig-src'], drupal_strip_dangerous_protocols($image));
           $this->assertEqual((string) $element['src'], $red_x_image);
-          $this->assertEqual((string) $element['alt'], t('Only local images are allowed.'));
-          $this->assertEqual((string) $element['title'], t('Only local images are allowed.'));
+          $this->assertEqual((string) $element['alt'], t('Image removed.'));
+          $this->assertEqual((string) $element['title'], t('This image has been removed. For security reasons, only images from the local domain are allowed.'));
+          $this->assertEqual((string) $element['height'], '18');
+          $this->assertEqual((string) $element['width'], '18');
         }
         else {
           $this->assertEqual((string) $element['src'], $converted);
