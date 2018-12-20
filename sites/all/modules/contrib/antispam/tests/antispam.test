@@ -77,7 +77,7 @@ class AntispamNodeTest extends AntispamTestBase {
     $this->assertText($edit['title'], 'Published node found.');
 
     $this->drupalGet('node/' . $node->nid);
-    $this->clickLink(t('Submit spam'));
+    $this->clickLink(t('Spam'));
 
     $this->drupalGet('admin/content/antispam/nodes/spam');
     $this->assertResponse(200);

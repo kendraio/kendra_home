@@ -2,11 +2,15 @@
  |||||||||||||||||||||||||||||| RULES FORMS ||||||||||||||||||||||||||||||
  -------------------------------------------------------------------------
 
- maintained by Jordan Halterman <jordan.halterman@gmail.com>
- http://drupal.org/project/rules_forms
+ maintained by Felipe Caminada <caminadaf@gmail.com>
+ Supported by CI&T
 
- Thanks to klausi and fago for original development and maintainance of
+ Thanks to klausi and fago for original development and maintenance of
  the earlier version of Rules Forms, which was included with Rules 1.
+
+ Also a very special thanks to Jordan Halterman for maintaining this project
+ for a very long time and developing the 2.0 version.
+
 
  Installation
  ------------
@@ -20,18 +24,19 @@
 
  * Go to the "Form events" page in the Rules administration menu
    (admin/config/workflow/rules/forms).
- * Select the checkbox "Enable event activation messages on forms" and hit the "Save
-   settings" button.
+ * Select the checkbox "Enable event activation messages on forms" and hit the
+   "Save settings" button.
  * Go to the form on your site that you would like to customize with Rules, e.g.
    go to 'node/add/article' to enable events on the "Create Article" form.
- * On the top of the page you see a drupal message with a link to activate events
-   for the form, click it.
+ * On the top of the page you will see a drupal message with a link to activate
+   events for the form, click it.
  * Enter a human-readable label for identifying the form.
- * In some cases you may want to enable events for individual buttons on the form.
-   To do so, check the checkbox labeled "Enable button level validate/submit events".
+ * In some cases you may want to enable events for individual buttons on the
+   form. To do so, check the checkbox labeled "Enable button level
+   validate/submit events".
  * Confirm the activation by clicking the "Activate" button.
- * Go to the "Triggered rules" admin page (admin/config/workflow/rules) and click
-   the "Add a new rule" link.
+ * Go to the "Triggered rules" admin page (admin/config/workflow/rules) and
+   click the "Add a new rule" link.
  * Fill out the label, choose a form event by selecting one in the "Rules Forms"
    group and confirm with "Save changes".
  * Now you can add conditions and actions to react on the form event.
@@ -60,46 +65,49 @@
 
  * Create a new reaction rule using the Rules interface.
  * Select the desired event for the target form.
- * On the following screen, you will be displayed a select list of form elements.
+ * On the following screen you will be displayed a select list of form elements.
    Select the target form element from the select list and click "Continue".
- * Note: Form elements are categorized by type to make them more easily identifiable.
- * In the event that the form element select list is not populated, try rebuilding
-   form element data as described below.
+ * Note: Form elements are categorized by type to make them easily identifiable.
+ * In the event that the form element select list is not populated, try
+   rebuilding form element data as described below.
 
- #1429622: *The Rules data selector cannot currently be used to select form elements*
-
+ Known issue #1429622: *The Rules data selector cannot currently be used to
+ select form elements*
+ Please use the Conditions and Actions provided by Rules Forms instead, or
+ create your own.
 
  Using the form element inspection tool
  --------------------------------------
 
- Rules forms support provides a tool for inspecting form elements on active forms.
- This tool can be used to determine the current attributes of form elements and to
- inspect elements following the execution of rules.
+ Rules forms provides a tool for inspecting form elements on active forms.
+ This tool can be used to determine the current attributes of form elements and
+ to inspect elements following the execution of rules.
 
  * Navigate to the "Form events" page in the Rules administration menu
    (admin/config/workflow/rules/forms)
  * Select the checkbox labeled "Enable form element inspection tool".
  * Click the button label "Save settings".
  * To use the inspection tool, navigate to a form whose events are activated.
- * Mouse over the question mark (?) near any form element to display a list of that
-   element's current attributes and their values.
+ * Mouse over the question mark (?) near any form element to display a list of
+   that element's current attributes and their values.
 
 
  Rebuilding form element data
  ----------------------------
 
- In the event that form elements are not being displayed within the element select list
- in the rules interface, you can rebuild Rules forms' internal storage of form element
- data.
+ In the event that form elements are not being displayed within the element
+ select list in the rules interface, you can rebuild Rules forms' internal
+ storage of form element data.
 
  * Navigate to the "Form events" page in the Rules administration menu
    (admin/config/workflow/rules/forms)
  * Expand the fieldset labeled "Form elements".
  * Select the form whose elements you want to rebuild from the select list.
  * Click the "Rebuild" button.
- * Finally, navigate to the form whose elements need to be rebuilt. When the form is
-   displayed for the first time, Rules forms will evaluate it and display a message
-   notifying the user that its internal memory has been updated.
+ * Finally, navigate to the form whose elements need to be rebuilt. When the
+   form is displayed for the first time, Rules forms will evaluate it and
+   display a message notifying the user that the internal form information has
+   been updated.
 
 
  Deactivate a form
@@ -112,6 +120,5 @@
  * Expand the fieldset labeled "Active forms".
  * Select the forms you would like to disable from the checkboxes.
  * Click the button labeled "Deactivate events".
- * Note: deactivating form events will break existing rules that implement events
-   provided by those forms.
-
+ * Note: deactivating form events will break existing rules that implement
+   events provided by those forms.

@@ -98,7 +98,7 @@ function pm_existing_pages_get_existing_pages($task_id = NULL) {
 /**
  * Implements hook_form_alter().
  */
-function pm_existing_pages_form_alter(&$form, $form_state, $form_id) {
+function pm_existing_pages_form_alter(&$form, &$form_state, $form_id) {
 
   // Add validation on delete.
   if ($form_id == 'ctools_export_ui_delete_confirm_form' && arg(3) == 'existing-pages') {
@@ -108,6 +108,42 @@ function pm_existing_pages_form_alter(&$form, $form_state, $form_id) {
       '#value' => $existing_page
     );
     $form['#validate'][] = 'pm_existing_pages_delete_validate';
+  }
+
+  // Fix include path for cached pmep menu page callback triggered forms.
+  // @see drupal_retrieve_form()
+  // @see pm_existing_pages_pm_existing_pages_menu_alter()
+  // @see pm_existing_pages_pm_existing_pages_page()
+  if (isset($form_state['build_info']['files']['menu']) && strpos($form_state['build_info']['files']['menu'], 'pm_existing_pages/plugins/tasks/pm_existing_pages.inc')) {
+    $item = menu_get_item();
+    if (!empty($item['include_file']) && strpos($item['include_file'], 'pm_existing_pages/plugins/tasks/pm_existing_pages.inc')) {
+      $args = $item['page_arguments'];
+
+      // Include the file where _pm_existing_pages_get_pm_args() is defined.
+      module_load_include('inc', 'pm_existing_pages', 'plugins/tasks/pm_existing_pages');
+
+      // Determine which are the pmep arguments.
+      $split_args = _pm_existing_pages_get_pm_args($args);
+
+      // Get pmep arguments.
+      if (isset($split_args['pmep'])) {
+        $pm_args = $split_args['pmep'];
+        $file = $pm_args['f'];
+        $file_path = $pm_args['fp'];
+        $module = $pm_args['m'];
+
+        if ($file) {
+          if (empty($file_path) && !empty($module)) {
+            $file_path = drupal_get_path('module', $module);
+          }
+          if ($file && $file_path) {
+            // Do not use form_load_include() here, as the file is already loaded.
+            // Anyway, form_get_cache() is able to handle filepaths too.
+            $form_state['build_info']['files']['menu'] = $file_path . '/' . $file;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -119,5 +155,21 @@ function pm_existing_pages_delete_validate($form, $form_state) {
   $page = page_manager_cache_load($existing_page);
   if ($page && isset($page->handlers) && !empty($page->handlers)) {
     form_set_error('', t('There is an existing variant for this page, please remove it first.'));
+  }
+}
+
+/**
+ * Status callback.
+ */
+function pm_existing_pages_set_status($object, $status) {
+  // Set variable page.
+  variable_set('pm_existing_pages_disabled_' . $object->name, $status);
+
+  // Set object status. @see ctools_export_crud_set_status().
+  if (is_object($object)) {
+    ctools_export_set_object_status($object, $status);
+  }
+  else {
+    ctools_export_set_status($object->table, $object, $status);
   }
 }

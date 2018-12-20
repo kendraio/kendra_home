@@ -40,8 +40,12 @@ function location_migrate_api() {
 *   $this->addFieldMapping('field_location_dest:city', 'field_source_city');
 * @endcode
 */
+
 class MigrateLocationFieldHandler extends MigrateFieldHandler {
 
+  /**
+   * {@inheritdoc}
+   */
   public function __construct() {
     $this->registerTypes(array('location'));
   }
@@ -49,14 +53,18 @@ class MigrateLocationFieldHandler extends MigrateFieldHandler {
   /**
    * Implementation of MigrateFieldHandler::fields().
    *
-   * @param $type
-   *  The file field type - 'file' or 'image'
-   * @param $parent_field
-   *  Name of the parent field.
+   * @param string $type
+   *   The file field type - 'file' or 'image'
+   *
+   * @param string $parent_field
+   *   Name of the parent field.
+   *
    * @param Migration $migration
-   *  The migration context for the parent field. We can look at the mappings
-   *  and determine which subfields are relevant.
+   *   The migration context for the parent field. We can look at the mappings
+   *   and determine which subfields are relevant.
+   *
    * @return array
+   *   Array of fields.
    */
   public function fields($type, $parent_field, $migration = NULL) {
     $dummy = array();
@@ -73,6 +81,9 @@ class MigrateLocationFieldHandler extends MigrateFieldHandler {
     return $fields;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function prepare($entity, array $field_info, array $instance, array $values) {
     $migration = Migration::currentMigration();
     $destination = $migration->getDestination();
@@ -105,10 +116,9 @@ class MigrateLocationFieldHandler extends MigrateFieldHandler {
       if (isset($instance_arguments['country'])) {
         $instance_arguments['country'] = strtolower($instance_arguments['country']);
       }
-
-      // Ensure we have at least one location field besides 'is_primary' before saving
+      // Ensure we have at least one location field besides 'is_primary' before saving.
       if (!empty($instance_arguments)) {
-        $instance_arguments['is_primary'] = $value;
+        $instance_arguments['is_primary'] = ($delta == 0);
         $instance_arguments['inhibit_geocode'] = TRUE;
 
         // Only save the location if saved successfully.
@@ -120,5 +130,4 @@ class MigrateLocationFieldHandler extends MigrateFieldHandler {
 
     return $return;
   }
-
 }

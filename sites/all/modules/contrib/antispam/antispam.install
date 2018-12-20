@@ -1,4 +1,36 @@
 <?php
+/**
+ * @file
+ * Requirements, schema and related hooks for the Antispam module.
+ */
+
+/**
+ * Implements hook_requirement().
+ */
+function antispam_requirements($phase) {
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    $provider = antispam_get_service_provider();
+
+    if ($provider == ANTISPAM_AKISMET_SERVICE) {
+      if (variable_get('antispam_wpapikey', '') == '') {
+        $requirements['antispam_key'] = array(
+          'title' => t('Akismet API key'),
+          'value' => t('Not present'),
+          'description' => t("Akismet spam protection service requires a <a href='!wpapikey'>Akismet API key</a> to function. Obtain a key by signing up for a free account at <a href='!akismet-com'>Akismet.com</a>, then enter the key on the <a href='!antispam-settings'>AntiSpam settings page</a>.",
+          array(
+            '!wpapikey' => url('http://akismet.com/signup/'),
+            '!akismet-com' => url('http://akismet.com'),
+            '!antispam-settings' => url('admin/config/spamprevention/antispam'),
+          )),
+          'severity' => REQUIREMENT_ERROR,
+        );
+        return $requirements;
+      }
+    }
+  }
+}
 
 /**
  * Implements hook_schema().
@@ -136,8 +168,8 @@ function antispam_schema() {
 /**
  * Implements hook_install().
  */
-function antispam_install() {
-}
+//function antispam_install() {
+//}
 
 /**
  * Implements hook_uninstall().

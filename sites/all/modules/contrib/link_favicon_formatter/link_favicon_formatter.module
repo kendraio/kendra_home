@@ -154,6 +154,7 @@ function theme_link_favicon_formatter_favicon($vars) {
   $imagearray = array(
     'path' => $vars['service_url'] . $vars['service_link'],
     'alt' => $vars['element']['title'],
+    'attributes' => array('class' => 'link-favicon'),
   );
   if ($vars['restrict_size']) {
     $imagearray['height'] = '16';
@@ -266,7 +267,7 @@ function link_favicon_formatter_get_services() {
     ),
     'getfavicon_appspot' => array(
       'label' => t('getfavicon.appspot'),
-      'url' => 'http://getfavicon.appspot.com/',
+      'url' => 'https://getfavicon.appspot.com/',
       'link_format_function' => 'link_favicon_formatter_getfavicon_appspot',
     ),
   );
@@ -350,11 +351,11 @@ function link_favicon_formatter_get_favicon($url) {
       if (preg_match('/<link[^>]+rel="(?:shortcut )?icon"[^>]+?href="([^"]+?)"/si', $data->data, $icons)) {
         if (strpos($icons[1], '://')) {
           // Absolute path.
-          $data = drupal_http_request($icons[1]);
+          $data = drupal_http_request(trim($icons[1]));
         }
         elseif (strpos($icons[1], '//') === 0) {
           // Malformatted absolute path (missing protocol).
-          $data = drupal_http_request('https:' . $icons[1]);
+          $data = drupal_http_request('http:' . trim($icons[1]));
         }
         elseif (substr($icons[1], 0, 3) == '../') {
           // Relative path.
@@ -382,10 +383,15 @@ function link_favicon_formatter_get_favicon($url) {
       }
       // Check that the favicon was found.
       if ($data->status_message == 'OK') {
-        // Format the content-type header so it only gets the first part.
-        // Eg. (in case of 'text/plain; charset=utf-8' as on drupal.org)
-        $content_type = explode(';', $data->headers['content-type']);
-        $content_type = trim($content_type[0]);
+        // If content-type header not set, assume icon.
+        if (!isset($data->headers['content-type'])) {
+          $content_type = 'image/x-icon';
+        } else {
+          // Format the content-type header so it only gets the first part.
+          // Eg. (in case of 'text/plain; charset=utf-8' as on drupal.org)
+          $content_type = explode(';', $data->headers['content-type']);
+          $content_type = trim($content_type[0]);
+        }
         // Check is allowed content type.
         if (in_array($content_type, $allowed_types)) {
           // Create local directory if it doesn't yet exist.
@@ -393,32 +399,37 @@ function link_favicon_formatter_get_favicon($url) {
           if (file_prepare_directory($savedir, FILE_CREATE_DIRECTORY)) {
             // Save favicon.
             // Set the correct extension for the file to be saved.
-            switch ($data->headers['content-type']) {
+            switch ($content_type) {
               case "image/gif":
                 $extension = '.gif';
                 break;
-                
+
               case "image/png":
                 $extension = '.png';
                 break;
-                
+
               default:
                 $extension = '.ico';
             }
-            $file = file_save_data($data->data, LINK_FAVICON_FORMATTER_FAVICON_SAVE_PATH . '/' . $localname . $extension, FILE_EXISTS_REPLACE);
-            // Return the newly created file's path.
-            return file_create_url($file->uri);
+            // Check there is actually data returned
+            if (strlen($data->data)) {
+              $file = file_save_data($data->data, LINK_FAVICON_FORMATTER_FAVICON_SAVE_PATH . '/' . $localname . $extension, FILE_EXISTS_REPLACE);
+              // Return the newly created file's path.
+              return file_create_url($file->uri);
+            } else {
+              watchdog('Link favicon formatter', '%url returned a %ext with no data', array('%url' => $url, '%ext' => $extension), WATCHDOG_ERROR);
+            }
           }
           else {
             watchdog('Link favicon formatter', 'Error creating or reading directory %dir', array('%dir' => LINK_FAVICON_FORMATTER_FAVICON_SAVE_PATH), WATCHDOG_ERROR);
           }
         }
         else {
-          watchdog('Link favicon formatter', 'Favicon was not an allowed content type from %url', array('%url' => $icons[1]));
+          watchdog('Link favicon formatter', 'Favicon was not an allowed content type from %url', array('%url' => $url));
         }
       }
       else {
-        watchdog('Link favicon formatter', 'Favicon not found at %url', array('%url' => $icons[1]));
+        watchdog('Link favicon formatter', 'Favicon not found at %url', array('%url' => $url));
       }
     }
     else {
