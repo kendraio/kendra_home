@@ -1,6 +1,4 @@
 Patches used on this site:
 
-
-drupal7.menu-system.1697570-29.patch
- Kendra issue: https://github.com/kendraio/kendra_home/issues/36
- Drupal issue & patch: https://www.drupal.org/node/1697570#comment-7940173
+antispam-ensure-moderator_types-is-array-2957097-10.patch
+ https://www.drupal.org/project/antispam/issues/2957097

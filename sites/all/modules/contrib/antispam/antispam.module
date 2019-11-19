@@ -1270,10 +1270,10 @@ function antispam_get_moderator_types($account = NULL) {
     $node_types = node_type_get_names();
   }
 
-  // Suppress warning message.
-  $moderator_types[$account->uid] = NULL;
-
   if (!isset($moderator_types[$account->uid])) {
+    // Init it to an array to avoid warning messages.
+    $moderator_types[$account->uid] = array();
+
     if (user_access('administer nodes', $account)) {
       foreach ($node_types as $type => $name) {
         $moderator_types[$account->uid][$type] = $name;
@@ -2063,10 +2063,12 @@ function antispam_prepare_comment_data($content_type, $content, $provider) {
     $comment_data['comment_content'] = trim($comment_data['comment_content']);
   }
   elseif ($content_type == 'node') {
+    $render = reset(entity_view('node', array($content)));
+    $rendered = drupal_html_to_text(drupal_render($render), 'a');
     $comment_data['permalink'] = url('node/' . $content->nid);
     $comment_data['comment_author_email'] = (isset($user->mail) ? $user->mail : '');
     $comment_data['comment_author_url'] = '';
-    $comment_data['comment_content'] = render($content->body[$content->language][0]['value']);
+    $comment_data['comment_content'] = $rendered;
   }
   else {
     $comment_data['permalink'] = '';

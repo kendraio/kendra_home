@@ -714,13 +714,11 @@ function antispam_moderation_form($form, &$form_state, $mode = '', $submode = ''
 
     $query = db_select('node', 'n');
     $query->join('users', 'u', 'u.uid = n.uid');
-    $query->leftJoin('field_data_body', 'e', 'e.entity_id = n.nid');
     $query->leftJoin('antispam_spam_marks', 's', 's.content_id = n.nid AND s.content_type = :type', array(':type' => 'node'));
     $query->fields('n');
     $query->addField('u', 'name', 'registered_name');
     $query->addField('s', 'spaminess');
     $query->addField('s', 'content_id', 'spam_mark');
-    $query->addField('e', 'body_value', 'body');
     $query->condition('n.type', $sql_nodetypes, 'IN');
     if ($submode == 'spam') {
       $query->isNotNull('s.content_id');            
