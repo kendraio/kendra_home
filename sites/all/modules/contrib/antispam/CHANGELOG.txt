@@ -1,3 +1,7 @@
+AntiSpam 7.x-1.7, 2019-05-20
+----------------------------
+- Addressed an issue where all nodes were assumed to have a 'body' field.
+
 AntiSpam 7.x-1.6, 2017-08-01
 ----------------------------
 - Fixed a bug that was causing node spam history to be deleted rather than comment spam history.
