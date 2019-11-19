@@ -1270,10 +1270,10 @@ function antispam_get_moderator_types($account = NULL) {
     $node_types = node_type_get_names();
   }
 
-  // Suppress warning message.
-  $moderator_types[$account->uid] = NULL;
-
   if (!isset($moderator_types[$account->uid])) {
+    // Init it to an array to avoid warning messages.
+    $moderator_types[$account->uid] = array();
+
     if (user_access('administer nodes', $account)) {
       foreach ($node_types as $type => $name) {
         $moderator_types[$account->uid][$type] = $name;
