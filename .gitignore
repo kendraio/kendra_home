@@ -27,6 +27,7 @@ backups/*
 # Ignore Mac/OS files
  .DS_Store
 .idea
+**/.idea
 *~
 .vagrant
 Gemfile.lock
