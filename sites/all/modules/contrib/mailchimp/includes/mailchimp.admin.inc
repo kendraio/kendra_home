@@ -99,7 +99,7 @@ function mailchimp_admin_settings() {
   }
   else {
     drupal_set_message(
-      t('Your Mailchimp library is out of date. Download the <a href="@release">latest v1 release here</a> to make use of the "Connected sites" functionality.', array(
+      t('Your Mailchimp library version is incorrect. Download the <a href="@release">latest v2 (NOT v3!) release here</a> to make use of the "Connected sites" functionality.', array(
         '@release' => 'https://github.com/thinkshout/mailchimp-api-php/releases',
       )),
     'warning');
@@ -139,6 +139,16 @@ function mailchimp_admin_settings() {
     '#description' => t('Maximum number of entities to process in a single cron run. MailChimp suggest keeping this at 5000 or below. <i>This value is also used for batch Merge Variable updates on the Fields tab (part of mailchimp_lists).</i>'),
     '#default_value' => variable_get('mailchimp_batch_limit', 100),
   );
+
+  $form['mailchimp_api_timeout'] = [
+    '#type'             => 'textfield',
+    '#title'            => t('MailChimp API Timeout'),
+    '#required'         => TRUE,
+    '#default_value'    => variable_get('mailchimp_api_timeout', 60),
+    '#description'      => t('The timeout (in seconds) for calls to the MailChimp API. Set to something that won\'t take down the Drupal site.'),
+    '#element_validate' => ['element_validate_integer_positive'],
+    '#maxlength'        => 10,
+  ];
 
   return system_settings_form($form);
 }

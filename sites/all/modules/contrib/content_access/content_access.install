@@ -53,3 +53,27 @@ function content_access_update_7101() {
   }
   variable_del('content_access_settings');
 }
+
+/**
+ * Enable notice to rebuild node access permissions since a new node access realm
+ * was added to respect the core "view own unpublished content" permission
+ */
+function content_access_update_7102() {
+  node_access_needs_rebuild(TRUE);
+}
+
+/**
+ * Convert settings from serialize to json_encode.
+ */
+function content_access_update_7103() {
+  $settings = db_query('SELECT nid, settings FROM {content_access}');
+  foreach ($settings as $setting) {
+    $setting_array = unserialize($setting->settings);
+    db_update('content_access')
+      ->fields(array(
+        'settings' => json_encode($setting_array),
+      ))
+      ->condition('nid', $setting->nid, '=')
+      ->execute();
+  }
+}
