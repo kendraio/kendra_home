@@ -71,6 +71,13 @@ function formblock_block_info() {
     'cache' => DRUPAL_NO_CACHE,
   );
 
+  if (module_exists('comment')) {
+    $blocks['comment'] = array(
+      'info' => t('Comment form'),
+      'cache' => DRUPAL_NO_CACHE,
+    );
+  }
+
   return $blocks;
 }
 
@@ -109,6 +116,27 @@ function formblock_block_view($delta = '') {
         $block['subject'] = t('Contact');
         $block['content']['form'] = $content;
         return $block;
+      }
+      break;
+    case 'comment':
+      module_load_include('inc', 'comment', 'comment.pages');
+      $node = menu_get_object('node');
+      drupal_alter('formblock_commentblock', $node);
+      if (!empty($node) && node_access('view', $node) && $node->comment == COMMENT_NODE_OPEN && user_access('post comments')) {
+        if (!empty($node->nid) && !empty($node->type)) {
+          // We don't call comment_reply() directly as it may include other
+          // unwanted elements. Also only comments directly to a node and not
+          // other comments are allowed (pid = NULL).
+          $edit = array(
+            'nid' => $node->nid,
+            'pid' => NULL,
+          );
+          $content['comment_form'] = drupal_get_form("comment_node_{$node->type}_form", (object) $edit);
+          return array(
+            'subject' => t('Comment'),
+            'content' => $content,
+          );
+        }
       }
       break;
     default:

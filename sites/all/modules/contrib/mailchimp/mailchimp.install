@@ -65,10 +65,12 @@ function mailchimp_requirements($phase) {
     if (empty($library['error'])) {
       $version_int = (int) str_replace('.', '', $library['version']);
 
-      if ($version_int <= 107) {
-        $requirements['mailchimp']['value'] = $library['version'];
-        $requirements['mailchimp']['description'] = $t('Please update the <a href="https://github.com/thinkshout/mailchimp-api-php/releases">MailChimp library</a> to at least version 1.0.8 to ensure continued stability.');
-        $requirements['mailchimp']['severity'] = REQUIREMENT_WARNING;
+      if ($library['version'] != '2.x') {
+        if ($version_int != 1010 && ($version_int <= 107 || $version_int >= 300)) {
+          $requirements['mailchimp']['value'] = $library['version'];
+          $requirements['mailchimp']['description'] = $t('Please !verb the <a href="https://github.com/thinkshout/mailchimp-api-php/releases">MailChimp library</a> to any version between version 1.0.8 and 2.1.3 (inclusive) to ensure continued stability.', array('!verb' => $version_int <= 107 ? 'update' : 'downgrade'));
+          $requirements['mailchimp']['severity'] = REQUIREMENT_WARNING;
+        }
       }
     }
 
@@ -82,6 +84,7 @@ function mailchimp_requirements($phase) {
  */
 function mailchimp_uninstall() {
   variable_del('mailchimp_api_key');
+  variable_del('mailchimp_api_timeout');
   variable_del('mailchimp_batch_limit');
   $queue = DrupalQueue::get(MAILCHIMP_QUEUE_CRON);
   $queue->deleteQueue();
