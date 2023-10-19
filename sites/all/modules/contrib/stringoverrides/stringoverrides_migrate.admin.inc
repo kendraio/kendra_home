@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Stringoverride migration admin.
+ */
 
 /**
  * Menu callback for the String Overrides Migrate module to display the import administration
@@ -73,7 +77,7 @@ function stringoverrides_migrate_admin_export() {
     '#value' => t('Export'),
     '#weight' => 3,
   );
-  $form['#submit'][] = 'stringoverrides_admin_export_submit';
+  $form['#submit'][] = 'stringoverrides_migrate_admin_export_submit';
   return $form;
 }
 
@@ -82,7 +86,7 @@ function stringoverrides_migrate_admin_export() {
  */
 function stringoverrides_migrate_admin_export_submit($form, &$form_state) {
   $lang = $form_state['values']['lang'];
-  $export = stringoverrides_admin_export_text($lang);
+  $export = stringoverrides_migrate_admin_export_text($lang);
   $filename = "my-string-overrides.$lang.po";
   $headers = array(
     'Content-Type' => 'text/plain; charset=UTF-8',

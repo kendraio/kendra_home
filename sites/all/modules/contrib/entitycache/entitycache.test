@@ -1241,6 +1241,15 @@ class EntityCacheTaxonomyTermTestCase extends TaxonomyTermTestCase {
     parent::setup();
     module_enable(array('entitycache'));
   }
+
+  function testTaxonomyGetTermsByName() {
+    $term1 = $this->createTerm($this->vocabulary);
+    $term2 = $this->createTerm($this->vocabulary);
+
+    $conditions = array('name' => array($term1->name, $term2->name));
+    $terms = taxonomy_term_load_multiple(array(), $conditions);
+    $this->assertTrue(count($terms) == 2, 'Multiple terms loaded using exact names.');
+  }
 }
 
 /**

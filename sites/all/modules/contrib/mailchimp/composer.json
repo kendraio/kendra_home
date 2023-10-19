@@ -10,6 +10,6 @@
     "php"
   ],
   "require": {
-    "thinkshout/mailchimp-api-php": ">=1.0.9"
+    "thinkshout/mailchimp-api-php": "2.1.3"
   }
 }

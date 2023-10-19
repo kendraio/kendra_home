@@ -27,8 +27,8 @@ function stringoverrides_help($path, $arg) {
   if ($path == 'admin/config/regional/stringoverrides' || strpos($path, 'admin/config/regional/stringoverrides/manage/') !== FALSE) {
     $languages = language_list();
     if (isset($arg[5]) && isset($languages[$arg[5]])) {
-        $lang = $languages[$arg[5]]->native;
-        return '<p>' . t('The following provides a quick and easy way of replacing text in @lang.', array('@lang' => $lang)) . '</p>';
+      $lang = $languages[$arg[5]]->native;
+      return '<p>' . t('The following provides a quick and easy way of replacing text in @lang.', array('@lang' => $lang)) . '</p>';
     }
     return '<p>' . t('The following provides a quick and easy way of replacing text.') . '</p>';
   }
@@ -59,9 +59,9 @@ function stringoverrides_menu() {
     'file' => 'stringoverrides.admin.inc',
   );
 
-  // Add the language tabs if there are other languages
+  // Add the language tabs if there are other languages.
   if (module_exists('locale')) {
-    global $language;
+    $language = language_default();
     $languages = locale_language_list();
     foreach ($languages as $code => $name) {
       $items["admin/config/regional/stringoverrides/manage/$code"] = array(
@@ -70,6 +70,7 @@ function stringoverrides_menu() {
         'page arguments' => array('stringoverrides_admin', $code),
         'access arguments' => array('administer string overrides'),
         'type' => $language->language == $code ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+        'file' => 'stringoverrides.admin.inc',
       );
     }
   }

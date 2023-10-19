@@ -88,21 +88,28 @@ Installation Notes
 MailChimp Library Installation
 --------------------------------------------------------------------------------
 
-    # For MailChimp version 7.x-4.x
+    # For MailChimp version 7.x-4.x and 7.x-5.x
 
     To use the Libraries module:
 
       - Install the Libraries module:
         https://www.drupal.org/project/libraries
 
-      - Download the current release of the MailChimp library:
-        https://github.com/thinkshout/mailchimp-api-php/files/1361112/v1.0.8-package.zip
+      - Download the latest 2.x (NOT 3.x!) release of the MailChimp library:
+        https://github.com/thinkshout/mailchimp-api-php/archive/refs/tags/v2.1.3.zip
 
       - Locate your libraries directory. Usually:
         /sites/all/libraries/
 
       - Extract the archive to:
         libraries/mailchimp
+
+      - Download Composer if you don't already have it installed:
+        https://getcomposer.org/download/
+
+      - In libraries/mailchimp, run composer to get the module's dependencies:
+        cd sites/all/libraries/mailchimp
+        composer install
 
       - Ensure the directory structure looks like this:
 
